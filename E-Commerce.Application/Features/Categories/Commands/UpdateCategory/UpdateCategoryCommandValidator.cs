@@ -1,0 +1,32 @@
+﻿using FluentValidation;
+
+namespace E_Commerce.Application.Features.Categories.Commands.UpdateCategory;
+
+internal sealed class UpdateCategoryCommandValidator : AbstractValidator<UpdateCategoryCommand>
+{
+    public UpdateCategoryCommandValidator()
+    {
+        RuleFor(c => c.Name)
+            .NotEmpty().WithMessage("Category Name is required.")
+            .MaximumLength(150).WithMessage("Category Name must not exceed 150 characters.");
+
+        RuleFor(c => c.Description)
+            .MaximumLength(1000).WithMessage("Category Description must not exceed 1000 characters.");
+
+        RuleFor(x => x.ImageUrl)
+            .MaximumLength(300).WithMessage("ImageUrl must not exceed 300 characters.")
+            .Must(uri => Uri.TryCreate(uri, UriKind.Absolute, out _))
+            .When(x => !string.IsNullOrEmpty(x.ImageUrl))
+            .WithMessage("ImageUrl must be a valid URL.");
+
+        RuleFor(c => c.ParentId)
+            .NotEqual(Guid.Empty)
+            .WithMessage("Parent Category Id cannot be an empty GUID.")
+            .When(c => c.ParentId.HasValue);
+
+        RuleFor(c => c.ParentId)
+            .NotEqual(c => c.Id)
+            .WithMessage("A category cannot be its own parent.")
+            .When(c => c.ParentId.HasValue);
+    }
+}
