@@ -13,12 +13,6 @@ internal sealed class UpdateCategoryCommandValidator : AbstractValidator<UpdateC
         RuleFor(c => c.Description)
             .MaximumLength(1000).WithMessage("Category Description must not exceed 1000 characters.");
 
-        RuleFor(x => x.ImageUrl)
-            .MaximumLength(300).WithMessage("ImageUrl must not exceed 300 characters.")
-            .Must(uri => Uri.TryCreate(uri, UriKind.Absolute, out _))
-            .When(x => !string.IsNullOrEmpty(x.ImageUrl))
-            .WithMessage("ImageUrl must be a valid URL.");
-
         RuleFor(c => c.ParentId)
             .NotEqual(Guid.Empty)
             .WithMessage("Parent Category Id cannot be an empty GUID.")

@@ -11,8 +11,16 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
         #region Properties
         builder.HasKey(o => o.Id);
 
+        builder.HasIndex(o => o.OrderedDate);
+
         builder.Property(o => o.OrderedDate)
             .IsRequired();
+
+        builder.Property(o => o.ShippingAddress)
+            .IsRequired()
+            .HasMaxLength(500);
+
+        builder.HasIndex(o => o.Status);
 
         builder.Property(o => o.Status)
             .HasConversion<string>()
@@ -20,6 +28,10 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
             .HasMaxLength(25);
 
         builder.Property(o => o.TotalAmount)
+            .HasPrecision(18, 2)
+            .IsRequired();
+
+        builder.Property(o => o.ShippingCost)
             .HasPrecision(18, 2)
             .IsRequired();
         #endregion

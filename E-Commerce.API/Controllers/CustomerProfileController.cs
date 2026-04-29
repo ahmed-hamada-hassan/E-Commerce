@@ -1,4 +1,8 @@
-﻿using MediatR;
+using E_Commerce.API.Contracts;
+using E_Commerce.Application.Features.Users.Commands.UpdateUser;
+using E_Commerce.Application.Features.Users.DTOs;
+using E_Commerce.Application.Features.Users.Queries.Get_Customer;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
@@ -19,7 +23,23 @@ public class CustomerProfileController : BaseApiController
     }
 
     [HttpGet]
-    public async Task<ActionResult> GetMyProfile(CancellationToken ct)
+    public async Task<ActionResult<CustomerProfileResponse>> GetMyProfile(CancellationToken ct)
     {
+        var result = await _mediator.Send(new GetCustomerQuery(CurrentUserId), ct);
+        return result.IsFailure ? HandleFailure(result) : Ok(result.Value);
+    }
+
+    [HttpPut]
+    public async Task<ActionResult> UpdateMyProfile([FromBody] UpdateCustomerInfoRequest request, CancellationToken ct)
+    {
+        var result = await _mediator.Send(request.ToUpdateCustomerCommand(CurrentUserId), ct);
+        return result.IsFailure ? HandleFailure(result) : NoContent();
+    }
+
+    [HttpPut("image")]
+    public async Task<ActionResult> UpdateMyProfileImage([FromForm] FormFile? image, CancellationToken ct)
+    {
+        var result = await _mediator.Send(new UpdateUserImageCommand(CurrentUserId, image), ct);
+        return result.IsFailure ? HandleFailure(result) : NoContent();
     }
 }

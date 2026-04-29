@@ -1,4 +1,4 @@
-﻿using E_Commerce.Application.Interfaces.Dependency_Injection;
+using E_Commerce.Application.Interfaces.Dependency_Injection;
 using E_Commerce.Domain.Entities;
 
 namespace E_Commerce.Application.Interfaces.Repositories;
@@ -10,4 +10,9 @@ public interface IVendorRepository : IScopedService
     Task<bool> IsStoreNameUniquenessAsync(string storyName, CancellationToken ct);
     Task<bool> IsCommercialRegistrationNumberUniquenessAsync(string commercialRegistrationNumber, CancellationToken ct);
     Task<Vendor?> GetByIdAsync(Guid vendorId, CancellationToken ct);
+
+    /// <summary>
+    /// Vendor with user and addresses for admin detail (ignores soft-delete filters on vendor and user).
+    /// </summary>
+    Task<Vendor?> GetVendorForAdminByIdAsync(Guid vendorId, CancellationToken cancellationToken = default);
 }

@@ -9,21 +9,17 @@ namespace E_Commerce.Application.Features.Carts.Commands.UpdateItemQuantity;
 internal sealed class UpdateItemQuantityCommandHandler : IRequestHandler<UpdateItemQuantityCommand, Result<bool>>
 {
     private readonly IProductRepository _porductRepository;
-    private readonly IUserContext _userContext;
     private readonly ICartRepository _cartRepository;
 
-    public UpdateItemQuantityCommandHandler(IProductRepository porductRepository, IUserContext userContext, ICartRepository cartRepository)
+    public UpdateItemQuantityCommandHandler(IProductRepository porductRepository, ICartRepository cartRepository)
     {
         _porductRepository = porductRepository;
-        _userContext = userContext;
         _cartRepository = cartRepository;
     }
 
     public async Task<Result<bool>> Handle(UpdateItemQuantityCommand request, CancellationToken cancellationToken)
     {
-        var userId = _userContext.UserId;
-
-        var cart = await _cartRepository.GetAsync(userId, cancellationToken);
+        var cart = await _cartRepository.GetAsync(request.UserId, cancellationToken);
         if (cart is null) return Result<bool>.Failure(CartErrors.CartNotFound);
 
         var item = cart.Items.FirstOrDefault(i => i.ProductId == request.ProductId);
@@ -36,7 +32,7 @@ internal sealed class UpdateItemQuantityCommandHandler : IRequestHandler<UpdateI
 
         item.Quantity = request.Quantity;
 
-        await _cartRepository.UpdateAsync(cart, cancellationToken);
+        await _cartRepository.UpdateAsync(cart, request.UserId, cancellationToken);
 
         return Result<bool>.Success(true);
     }

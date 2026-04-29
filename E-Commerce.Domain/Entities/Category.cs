@@ -40,15 +40,11 @@ public class Category : SoftDeletable
         return Result<Category>.Success(category);
     }
 
-    public Result<bool> Update(string name, string? description, Guid? parentCategoryId, string? imageUrl)
+    public Result<bool> Update(string? name, string? description, Guid? parentCategoryId, string? imageUrl)
     {
-        if (string.IsNullOrWhiteSpace(name))
-            return Result<bool>.Failure(CategoryErrors.EmptyCategoryName);
+        if(!string.IsNullOrWhiteSpace(name))
+            Name = name;
 
-        if (Id == parentCategoryId)
-            return Result<bool>.Failure(CategoryErrors.InvalidParentCategory);
-
-        Name = name;
         Description = description;
         ParentCategoryId = parentCategoryId;
         ImageUrl = imageUrl;

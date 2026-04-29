@@ -41,7 +41,7 @@ public class AuthController : BaseApiController
 
 
     [HttpPost("register")]
-    [Authorize(Policy = "SuperAdmin-Only")]
+    // [Authorize(Policy = "SuperAdmin-Only")]
     public async Task<ActionResult<AuthResponse>> Register([FromForm] RegisterRequest request)
     {
         var register = request.ToRegisterCommand();

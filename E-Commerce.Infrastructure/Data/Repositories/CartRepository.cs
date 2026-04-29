@@ -11,7 +11,7 @@ internal sealed class CartRepository : ICartRepository
 {
     private readonly IDistributedCache _cache;
     private readonly RedisSettings _redisSettings;
-
+    private const string CartCachePrefix = "cart:";
     public CartRepository(IDistributedCache cache, IOptions<RedisSettings> redisSettings)
     {
         _cache = cache;
@@ -20,23 +20,26 @@ internal sealed class CartRepository : ICartRepository
 
     public async Task<bool> DeleteAsync(Guid UserId, CancellationToken ct)
     {
-        await _cache.RemoveAsync(UserId.ToString(), ct);
+        var cacheKey = $"{CartCachePrefix}{UserId}";
+        await _cache.RemoveAsync(cacheKey, ct);
         return true;
     }
 
     public async Task<Cart?> GetAsync(Guid UserId, CancellationToken ct)
     {
-        var stringData = await _cache.GetStringAsync(UserId.ToString(), ct);
-        return string.IsNullOrEmpty(stringData) ? null : JsonSerializer.Deserialize<Cart?>(stringData);
+        var cacheKey = $"{CartCachePrefix}{UserId}";
+        var stringData = await _cache.GetStringAsync(cacheKey, ct);
+        return string.IsNullOrEmpty(stringData) ? default : JsonSerializer.Deserialize<Cart?>(stringData);
     }
 
-    public async Task<Cart?> UpdateAsync(Cart cart, CancellationToken ct)
+    public async Task<Cart?> UpdateAsync(Cart cart, Guid UserId, CancellationToken ct)
     {
+        var cacheKey = $"{CartCachePrefix}{UserId}";
         var options = new DistributedCacheEntryOptions()
-            .SetSlidingExpiration(TimeSpan.FromDays(_redisSettings.CartExpirationDays));
+            .SetAbsoluteExpiration(TimeSpan.FromDays(_redisSettings.ExpirationDays));
 
         var jsonData = JsonSerializer.Serialize(cart);
-        await _cache.SetStringAsync(cart.UserId.ToString(), jsonData, options, ct);
+        await _cache.SetStringAsync(cacheKey, jsonData, options, ct);
 
         return cart;
     }

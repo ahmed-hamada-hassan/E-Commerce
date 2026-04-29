@@ -74,30 +74,28 @@ public class Product : SoftDeletable
         return Result<Product>.Success(product);
     }
 
-    public Result<bool> Update(Guid categoryId, string name, string? description, decimal price, string sku, string? barcode, int stockQuantity)
+    public Result<bool> Update(Guid categoryId, string? name, string? description, decimal? price, string? sku, string? barcode, int? stockQuantity)
     {
-        if (categoryId == Guid.Empty)
-            return Result<bool>.Failure(ProductErrors.EmptyCategoryId);
+        if(categoryId != Guid.Empty)
+            CategoryId = categoryId;
 
-        if (string.IsNullOrWhiteSpace(name))
-            return Result<bool>.Failure(ProductErrors.EmptyProductName);
+        if(!string.IsNullOrWhiteSpace(name))
+            Name = name;
 
-        if (price <= 0)
-            return Result<bool>.Failure(ProductErrors.PriceMustBeGreaterThanZero);
-                
-        if (string.IsNullOrWhiteSpace(sku))
-            return Result<bool>.Failure(ProductErrors.EmptySKU);
+        if(!string.IsNullOrWhiteSpace(description))
+            Description = description;
 
-        if (stockQuantity < 0)
-            return Result<bool>.Failure(ProductErrors.StockQuantityCannotBeNegative);
+        if(price.HasValue && !(price <= 0))
+            Price = price.Value;
 
-        CategoryId = categoryId;
-        Name = name;
-        Description = description;
-        Price = price;
-        SKU = sku;
-        Barcode = barcode;
-        StockQuantity = stockQuantity;
+        if (stockQuantity.HasValue && !(stockQuantity < 0))
+            StockQuantity = stockQuantity.Value;
+
+        if(!string.IsNullOrWhiteSpace(sku))
+            SKU = sku;
+
+        if(!string.IsNullOrWhiteSpace(barcode))
+            Barcode = barcode;
 
         return Result<bool>.Success(true);
     }
@@ -108,6 +106,13 @@ public class Product : SoftDeletable
         if (quantity > StockQuantity)
             return Result<bool>.Failure(ProductErrors.InsufficientStock);
         StockQuantity -= quantity;
+        return Result<bool>.Success(true);
+    }
+    public Result<bool> AddStock(int quantity)
+    {
+        if (quantity <= 0)
+            return Result<bool>.Failure(ProductErrors.InvalidQuantity);
+        StockQuantity += quantity;
         return Result<bool>.Success(true);
     }
     public Result<bool> AddImage(string imageUrl, bool isPrimary, byte displayOrder)

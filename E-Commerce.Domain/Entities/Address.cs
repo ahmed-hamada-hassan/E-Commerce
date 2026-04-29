@@ -60,27 +60,23 @@ public class Address : SoftDeletable
         return Result<Address>.Success(address);
     }
 
-    public Result<bool> Update(string addressLine1, string? addressLine2, string city, string? stateOrProvince,
-        string postalCode, string country, AddressType addressType)
+    public Result<bool> Update(string? addressLine1, string? addressLine2, string? city, string? stateOrProvince,
+        string? postalCode, string? country, AddressType? addressType)
     {
-        if (string.IsNullOrWhiteSpace(addressLine1))
-            return Result<bool>.Failure(AddressErrors.MissingAddressLine1);
-        if (string.IsNullOrWhiteSpace(city))
-            return Result<bool>.Failure(AddressErrors.MissingCity);
-        if (string.IsNullOrWhiteSpace(postalCode))
-            return Result<bool>.Failure(AddressErrors.MissingPostalCode);
-        if (string.IsNullOrWhiteSpace(country))
-            return Result<bool>.Failure(AddressErrors.MissingCountry);
-        if (Enum.IsDefined(typeof(AddressType), addressType) == false)
-            return Result<bool>.Failure(AddressErrors.InvalidAddressType);
-
-        AddressLine1 = addressLine1;
-        AddressLine2 = addressLine2;
-        City = city;
-        StateOrProvince = stateOrProvince;
-        PostalCode = postalCode;
-        Country = country;
-        AddressType = addressType;
+        if(!string.IsNullOrWhiteSpace(addressLine1))
+            AddressLine1 = addressLine1;
+        if(!string.IsNullOrWhiteSpace(addressLine2))
+            AddressLine2 = addressLine2;
+        if(!string.IsNullOrWhiteSpace(city))
+            City = city;
+        if(!string.IsNullOrWhiteSpace(stateOrProvince))
+            StateOrProvince = stateOrProvince;
+        if(!string.IsNullOrWhiteSpace(postalCode))
+            PostalCode = postalCode;
+        if(!string.IsNullOrWhiteSpace(country))
+            Country = country;
+        if(addressType.HasValue && Enum.IsDefined(typeof(AddressType), addressType.Value))
+            AddressType = addressType.Value;
 
         return Result<bool>.Success(true);
     }

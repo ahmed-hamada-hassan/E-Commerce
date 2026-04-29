@@ -8,10 +8,12 @@ public class Order
 {
     public Guid Id { get; private set; }
     public Guid UserId { get; private set; }
+    public string ShippingAddress { get; private set; } = null!;
     public Guid ShippingAddressId { get; private set; }
     public DateTime OrderedDate { get; private set; }
     public OrderStatus Status { get; private set; }
     public decimal TotalAmount { get; private set; }
+    public decimal ShippingCost { get; private set; }
     public Cancellation? Cancellation { get; private set; }
 
     private readonly List<OrderItem> _orderItems = new();
@@ -21,26 +23,74 @@ public class Order
     public IReadOnlyCollection<Payment> Payments => _payments.AsReadOnly();
     public IReadOnlyCollection<Refund> Refunds => _refunds.AsReadOnly();
 
-    private Order(Guid id, Guid userId, Guid shippingAddressId, DateTime orderedDate, OrderStatus status, decimal totalAmount)
+    private Order(Guid id, Guid userId, Guid shippingAddressId, string shippingAddress, DateTime orderedDate, OrderStatus status, decimal shippingCost)
     {
         Id = id;
         UserId = userId;
         ShippingAddressId = shippingAddressId;
+        ShippingAddress = shippingAddress;
         OrderedDate = orderedDate;
         Status = status;
-        TotalAmount = totalAmount;
+        TotalAmount = shippingCost;
+        ShippingCost = shippingCost;
     }
 
     protected Order() { }
 
-    public static Result<Order> Create(Guid userId, Guid shippingAddressId, decimal totalAmount)
+    public static Result<Order> Create(Guid userId, Guid shippingAddressId, string shippingAddress, decimal shippingCost)
     {
         if (userId == Guid.Empty)
             return Result<Order>.Failure(OrderErrors.EmptyUserId);
         if (shippingAddressId == Guid.Empty)
             return Result<Order>.Failure(OrderErrors.EmptyShippingAddressId);
 
-        var order = new Order(Guid.NewGuid(), userId, shippingAddressId, DateTime.UtcNow, OrderStatus.Pending, 0);
+        var order = new Order(Guid.NewGuid(), userId, shippingAddressId, shippingAddress, DateTime.UtcNow, OrderStatus.Pending, shippingCost);
         return Result<Order>.Success(order);
+    }
+
+    public void AddOrderItem(Guid productId, string productName, decimal unitPrice, int quantity)
+    {
+        var orderItemResult = OrderItem.Create(Id, productId, productName, quantity, unitPrice);
+
+        if (orderItemResult.IsSuccess)
+        {
+            _orderItems.Add(orderItemResult.Value!);
+            TotalAmount += (unitPrice * quantity);
+        }
+    }
+
+    public void Confirm()
+    {
+        Status = OrderStatus.Processing;
+    }
+
+    public Result<bool> Cancel(Guid userId, string reason)
+    {
+        if(UserId != userId)
+            return Result<bool>.Failure(OrderErrors.AccessDenied);
+        if(Status != OrderStatus.Pending)
+            return Result<bool>.Failure(OrderErrors.CancellationWindowClosed);
+        if(OrderedDate.AddHours(24) < DateTime.UtcNow)
+            return Result<bool>.Failure(OrderErrors.CancellationWindowClosed);
+        if(string.IsNullOrEmpty(reason))
+            return Result<bool>.Failure(CancellationErrors.EmptyReason);
+
+        var cancellationResult = Cancellation.Create(Id, userId, reason);
+        if(cancellationResult.IsFailure)
+            return Result<bool>.Failure(cancellationResult.Error);
+
+        Status = OrderStatus.Cancelled;
+        Cancellation = cancellationResult.Value;
+
+        return Result<bool>.Success(true);
+    }
+
+    public void MarkAsShipped()
+    {
+        Status = OrderStatus.Shipped;
+    }
+     public void MarkAsDelivered()
+    {
+        Status = OrderStatus.Delivered;
     }
 }

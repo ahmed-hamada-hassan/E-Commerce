@@ -1,6 +1,5 @@
 ﻿using E_Commerce.Application.Interfaces.Data;
 using E_Commerce.Application.Interfaces.Repositories;
-using E_Commerce.Application.Interfaces.Services;
 using E_Commerce.Domain.Entities;
 using E_Commerce.Domain.Errors;
 using E_Commerce.Domain.Shared;
@@ -15,17 +14,15 @@ internal sealed class CreateProductCommandHandler : IRequestHandler<CreateProduc
     private readonly ICategoryRepository _categoryRepository;
     private readonly IVendorRepository _vendorRepository;
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IFileService _fileService;
     private readonly ILogger<CreateProductCommandHandler> _logger;
 
-    public CreateProductCommandHandler(IProductRepository productRepository, ICategoryRepository categoryRepository, 
-        IUnitOfWork unitOfWork, IFileService fileService, IVendorRepository vendorRepository, ILogger<CreateProductCommandHandler> logger)
+    public CreateProductCommandHandler(IProductRepository productRepository, ICategoryRepository categoryRepository,
+        IUnitOfWork unitOfWork, IVendorRepository vendorRepository, ILogger<CreateProductCommandHandler> logger)
     {
         _productRepository = productRepository;
         _categoryRepository = categoryRepository;
         _vendorRepository = vendorRepository;
         _unitOfWork = unitOfWork;
-        _fileService = fileService;
         _logger = logger;
     }
 
@@ -41,11 +38,8 @@ internal sealed class CreateProductCommandHandler : IRequestHandler<CreateProduc
             return Result<Guid>.Failure(VendorErrors.NotActive);
         }
 
-        if (request.Images.Count() > 7)
-            return Result<Guid>.Failure(new Error("ProductImage.LimitExceeded","You can only add 7 images."));
-
         var categoryExists = await _categoryRepository.IsExistsAsync(request.CategoryId, cancellationToken);
-        if(!categoryExists)
+        if (!categoryExists)
         {
             _logger.LogWarning("Attempted to create a product with non-existent category ID {CategoryId}.", request.CategoryId);
             return Result<Guid>.Failure(CategoryErrors.NotFound);
@@ -58,21 +52,6 @@ internal sealed class CreateProductCommandHandler : IRequestHandler<CreateProduc
         var product = productResult.Value!;
 
         await _productRepository.AddAsync(product, cancellationToken);
-
-        foreach (var img in request.Images)
-        {
-            var newImageUrl = await _fileService.UploadImageAsync(img.Image);
-
-            if (string.IsNullOrEmpty(newImageUrl))
-            {
-                _logger.LogError("INFRASTRUCTURE ERROR: Image upload failed during product creation. VendorId: {VendorId}, Attempted Product Name: {ProductName}",
-                        request.VendorId, request.Name);
-                return Result<Guid>.Failure(ProductImageErrors.UploadFaild);
-            }
-
-            var imgResult = product.AddImage(newImageUrl, img.IsPrimary, img.DisplayOrder);
-            if (imgResult.IsFailure) return Result<Guid>.Failure(imgResult.Error);
-        }
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 

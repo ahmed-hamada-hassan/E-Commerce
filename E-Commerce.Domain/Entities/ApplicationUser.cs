@@ -65,27 +65,28 @@ public class ApplicationUser : IdentityUser<Guid>, ISoftDeletable
         return Result<ApplicationUser>.Success(user);
     }
 
-    public Result<bool> Update(string firstName, string? middleName, string lastName, string email, string userName, string phoneNumber,
-        string? imageUrl, DateOnly dateOfBirth)
+    public Result<bool> Update(string? firstName, string? middleName, string? lastName, string? email, string? userName, string? phoneNumber,
+        DateOnly? dateOfBirth)
     {
-        if (string.IsNullOrWhiteSpace(firstName))
-            return Result<bool>.Failure(ApplicationUserErrors.EmptyFirstName);
-        if (string.IsNullOrWhiteSpace(lastName))
-            return Result<bool>.Failure(ApplicationUserErrors.EmptyLastName);
-        if (string.IsNullOrWhiteSpace(email))
-            return Result<bool>.Failure(ApplicationUserErrors.EmptyEmail);
-        if (string.IsNullOrWhiteSpace(userName))
-            return Result<bool>.Failure(ApplicationUserErrors.EmptyUsername);
+        if (!string.IsNullOrWhiteSpace(firstName))
+            FirstName = firstName;
+        if (!string.IsNullOrWhiteSpace(lastName))
+            LastName = lastName;
+        if (!string.IsNullOrWhiteSpace(email))
+            Email = email;
+        if (!string.IsNullOrWhiteSpace(userName))
+            UserName = userName;
+        if (!string.IsNullOrWhiteSpace(phoneNumber))
+            PhoneNumber = phoneNumber;
+        if (dateOfBirth.HasValue)
+            DateOfBirth = dateOfBirth.Value;
 
-        FirstName = firstName;
-        MiddleName = middleName;
-        LastName = lastName;
-        Email = email;
-        UserName = userName;
-        PhoneNumber = phoneNumber;
+        return Result<bool>.Success(true);
+    }
+
+    public Result<bool> UpdateImage(string? imageUrl)
+    {
         ImageUrl = imageUrl;
-        DateOfBirth = dateOfBirth;
-
         return Result<bool>.Success(true);
     }
 
@@ -110,5 +111,10 @@ public class ApplicationUser : IdentityUser<Guid>, ISoftDeletable
     {
         RefreshToken = refreshToken;
         RefreshTokenExpiryTime = expiryTime;
+    }
+
+    public void AddAddress(Address address)
+    {
+        _addresses.Add(address);
     }
 }

@@ -11,23 +11,19 @@ internal sealed class AddToCartCommandHandler : IRequestHandler<AddToCartCommand
 {
     private readonly ICartRepository _cartRepository;
     private readonly IProductRepository _productRepository;
-    private readonly IUserContext _userContext;
 
     public AddToCartCommandHandler(ICartRepository cartRepository, IProductRepository productRepository, IUserContext userContext)
     {
         _cartRepository = cartRepository;
         _productRepository = productRepository;
-        _userContext = userContext;
     }
 
     public async Task<Result<bool>> Handle(AddToCartCommand request, CancellationToken cancellationToken)
     {
-        var userId = _userContext.UserId;
-
         var product = await _productRepository.GetByIdAsync(request.ProductId, cancellationToken);
         if (product is null) return Result<bool>.Failure(ProductErrors.ProductNotFound);
 
-        var cart = await _cartRepository.GetAsync(userId, cancellationToken) ?? new Cart(userId);
+        var cart = await _cartRepository.GetAsync(request.UserId, cancellationToken) ?? new Cart(request.UserId);
 
         var existingItem = cart.Items.FirstOrDefault(i => i.ProductId == request.ProductId);
 
@@ -39,7 +35,7 @@ internal sealed class AddToCartCommandHandler : IRequestHandler<AddToCartCommand
         else
             cart.Items.Add(CartItem.Create(request.ProductId, product.Name, product.Price, request.Quantity, product.MainImageUrl));
 
-        await _cartRepository.UpdateAsync(cart, cancellationToken);
+        await _cartRepository.UpdateAsync(cart, request.UserId, cancellationToken);
         return Result<bool>.Success(true);
     }
 }

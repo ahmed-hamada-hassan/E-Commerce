@@ -1,4 +1,5 @@
-﻿using E_Commerce.Application.Interfaces.Data;
+﻿using E_Commerce.Application.Features.ProductImages.DTOs;
+using E_Commerce.Application.Interfaces.Data;
 using E_Commerce.Application.Interfaces.Repositories;
 using E_Commerce.Application.Interfaces.Services;
 using E_Commerce.Domain.Entities;
@@ -9,7 +10,7 @@ using Microsoft.Extensions.Logging;
 
 namespace E_Commerce.Application.Features.ProductImages.Commands.AddImage;
 
-internal sealed class AddImageCommandHandler : IRequestHandler<AddImageCommand, Result<List<Guid>>>
+internal sealed class AddImageCommandHandler : IRequestHandler<AddImageCommand, Result<List<AddImageResponse>>>
 {
     private readonly IProductImageRepository _productImageRepository;
     private readonly IProductRepository _productRepository;
@@ -27,14 +28,14 @@ internal sealed class AddImageCommandHandler : IRequestHandler<AddImageCommand, 
         _logger = logger;
     }
 
-    public async Task<Result<List<Guid>>> Handle(AddImageCommand request, CancellationToken cancellationToken)
+    public async Task<Result<List<AddImageResponse>>> Handle(AddImageCommand request, CancellationToken cancellationToken)
     {
         var product = await _productRepository.GetByIdAsync(request.ProductId, cancellationToken);
         if(product?.VendorId != request.VendorId)
-            return Result<List<Guid>>.Failure(ProductErrors.AccessDenied);
+            return Result<List<AddImageResponse>>.Failure(ProductErrors.AccessDenied);
 
         if (product is null)
-            return Result<List<Guid>>.Failure(ProductErrors.ProductNotFound);
+            return Result<List<AddImageResponse>>.Failure(ProductErrors.ProductNotFound);
 
         byte currentCount = await _productImageRepository.GetCountByProductIdAsync(request.ProductId, cancellationToken);
 
@@ -42,35 +43,59 @@ internal sealed class AddImageCommandHandler : IRequestHandler<AddImageCommand, 
         byte totalCount = (byte)(currentCount + newImagesCount);
 
         if(totalCount > 7)
-            return Result<List<Guid>>.Failure(new Error("ProductImage.LimitExceeded",
+            return Result<List<AddImageResponse>>.Failure(new Error("ProductImage.LimitExceeded",
             $"Product already has {currentCount} images. You can only add {7 - currentCount} more."));
 
-        var addedImagesId = new List<Guid>();
+        var imageResponses = new List<AddImageResponse>();
+        var uploadedImageUrls = new List<string>();
 
-        foreach (var imageDto in request.Images)
+        try
         {
-            var newImageUrl = await _fileService.UploadImageAsync(imageDto.Image);
-
-            if (string.IsNullOrEmpty(newImageUrl))
+            foreach (var imageDto in request.Images)
             {
-                _logger.LogError("Failed to upload image for product {ProductId}", request.ProductId);
-                return Result<List<Guid>>.Failure(ProductImageErrors.UploadFaild);
+                var newImageUrl = await _fileService.UploadImageAsync(imageDto.Image);
+
+                if (string.IsNullOrEmpty(newImageUrl))
+                {
+                    _logger.LogError("Failed to upload image for product {ProductId}", request.ProductId);
+                    return Result<List<AddImageResponse>>.Failure(ProductImageErrors.UploadFaild);
+                }
+
+                uploadedImageUrls.Add(newImageUrl);
+
+                var productImage = ProductImage.Create(request.ProductId, newImageUrl, imageDto.IsPrimary, imageDto.DisplayOrder);
+
+                if (productImage.IsFailure)
+                {
+                    await _fileService.DeleteImageAsync(newImageUrl);
+                    _logger.LogError("Failed to create product image for product {ProductId}", request.ProductId);
+                    return Result<List<AddImageResponse>>.Failure(productImage.Error);
+                }
+
+                var addResult = await _productImageRepository.AddAsync(productImage.Value!, cancellationToken);
+                imageResponses.Add(new AddImageResponse(addResult, newImageUrl, imageDto.DisplayOrder, imageDto.IsPrimary));
             }
 
-            var productImage = ProductImage.Create(request.ProductId, newImageUrl, imageDto.IsPrimary, imageDto.DisplayOrder);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-            if (productImage.IsFailure)
-            {
-                _logger.LogError("Failed to create product image for product {ProductId}", request.ProductId);
-                return Result<List<Guid>>.Failure(productImage.Error);
-            }
-
-            var addResult = await _productImageRepository.AddAsync(productImage.Value!, cancellationToken);
-            addedImagesId.Add(addResult);
+            return Result<List<AddImageResponse>>.Success(imageResponses);
         }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Critical: Database save failed for product {ProductId}. Starting rollback...", request.ProductId);
 
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
-
-        return Result<List<Guid>>.Success(addedImagesId);
+            foreach (var url in uploadedImageUrls)
+            {
+                try
+                {
+                    await _fileService.DeleteImageAsync(url);
+                }
+                catch (Exception deleteEx)
+                {
+                    _logger.LogWarning(deleteEx, "Rollback: Could not delete file at {Url}", url);
+                }
+            }
+            return Result<List<AddImageResponse>>.Failure(ProductImageErrors.AddFaild);
+        }
     }
 }

@@ -7,8 +7,8 @@ namespace E_Commerce.Domain.Entities;
 public class ProductImage
 {
     public Guid Id { get; private set; }
-    public Guid ProductId { get; private set; }
-    public Product Product { get; private set; } = null!;
+    public Guid? ProductId { get; private set; }
+    public Product? Product { get; private set; }
     public string ImageUrl { get; private set; } = null!;
     public bool IsPrimary { get; private set; } = false;
     public byte DisplayOrder { get; private set; }

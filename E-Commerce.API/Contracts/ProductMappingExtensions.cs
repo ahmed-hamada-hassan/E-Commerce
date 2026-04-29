@@ -32,23 +32,22 @@ public static class ProductMappingExtensions
             Price: request.Price,
             SKU: request.SKU,
             Barcode: request.Barcode,
-            StockQuantity: request.StockQuantity,
-            Images: request.Images
+            StockQuantity: request.StockQuantity
         );
     }
 
     public static UpdateProductCommand ToUpdateProductCommand(this UpdateProductRequest request, Guid productId, Guid vendorId)
     {
         return new UpdateProductCommand(
-            VendorId: vendorId,
-            ProductId: productId,
-            CategoryId: request.CategoryId,
-            Name: request.Name,
-            Description: request.Description,
-            Price: request.Price,
-            SKU: request.SKU,
-            Barcode: request.Barcode,
-            Quantity: request.Quantity
+            vendorId,
+            productId,
+            request.CategoryId,
+            string.IsNullOrWhiteSpace(request.Name) ? null : request.Name,
+            request.Description,
+            request.Price,
+            string.IsNullOrWhiteSpace(request.SKU) ? null : request.SKU,
+            string.IsNullOrWhiteSpace(request.Barcode) ? null : request.Barcode,
+            request.Quantity
         );
     }
 
@@ -59,9 +58,9 @@ public static class ProductMappingExtensions
             displayOrder: request.displayOrder
         );
     }
-    public static ImageResponse ToImageResponse(this ImageRequest request)
+    public static ImageDTO ToImageDTO(this ImageRequest request)
     {
-        return new ImageResponse(
+        return new ImageDTO(
             Image: request.Image,
             IsPrimary: request.IsPrimary,
             DisplayOrder: request.DisplayOrder

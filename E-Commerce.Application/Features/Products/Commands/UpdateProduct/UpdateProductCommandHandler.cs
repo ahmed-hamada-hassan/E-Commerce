@@ -1,6 +1,5 @@
 ﻿using E_Commerce.Application.Interfaces.Data;
 using E_Commerce.Application.Interfaces.Repositories;
-using E_Commerce.Application.Interfaces.Services;
 using E_Commerce.Domain.Errors;
 using E_Commerce.Domain.Shared;
 using MediatR;
@@ -25,21 +24,21 @@ internal sealed class UpdateProductCommandHandler : IRequestHandler<UpdateProduc
     {
         var product = await _productRepository.GetByIdAsync(request.ProductId, cancellationToken);
 
-        if(product?.VendorId != request.VendorId)
+        if (product is null)
+            return Result<bool>.Failure(ProductErrors.ProductNotFound);
+
+        if (product?.VendorId != request.VendorId)
         {
             _logger.LogWarning("Vendor {VendorId} attempted to update product {ProductId} which they do not own.", request.VendorId, request.ProductId);
             return Result<bool>.Failure(ProductErrors.AccessDenied);
         }
 
-        if (product is null)
-            return Result<bool>.Failure(ProductErrors.ProductNotFound);
-
-        if(product.SKU != request.SKU)
+        if (!string.IsNullOrWhiteSpace(request.SKU) && product.SKU != request.SKU)
         {
             var isSKUExists = await _productRepository.IsSKUExistsAsync(request.SKU, request.ProductId, cancellationToken);
-            if(isSKUExists)
+            if (isSKUExists)
             {
-                _logger.LogWarning("Attempted to update product with a duplicate SKU. ProductId: {ProductId}, SKU: {SKU}", 
+                _logger.LogWarning("Attempted to update product with a duplicate SKU. ProductId: {ProductId}, SKU: {SKU}",
                     request.ProductId, request.SKU);
                 return Result<bool>.Failure(ProductErrors.DuplicateSKU);
             }

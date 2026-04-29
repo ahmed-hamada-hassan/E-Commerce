@@ -27,7 +27,7 @@ public class AdminCategoriesController : BaseApiController
     }
 
     [HttpPost]
-    public async Task<ActionResult<Guid>> Category([FromBody] CreateCategoryRequest categoryRequest, CancellationToken ct)
+    public async Task<ActionResult<Guid>> Category([FromForm] CreateCategoryRequest categoryRequest, CancellationToken ct)
     {
         var result = await _mediator.Send(categoryRequest.ToCategoryCommand(), ct);
 
@@ -67,7 +67,7 @@ public class AdminCategoriesController : BaseApiController
     }
 
     [HttpPut("{id:guid}")]
-    public async Task<ActionResult> Category([FromRoute] Guid Id, [FromBody] UpdateCategoryRequest categoryRequest, CancellationToken ct)
+    public async Task<ActionResult> Category([FromRoute] Guid Id, [FromForm] UpdateCategoryRequest categoryRequest, CancellationToken ct)
     {
         var result = await _mediator.Send(categoryRequest.ToUpdateCategoryCommand(Id), ct);
         return result.IsFailure ? HandleFailure(result) : NoContent();

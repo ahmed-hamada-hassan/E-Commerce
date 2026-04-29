@@ -10,14 +10,12 @@ public static class CategoryMappingExtensions
     {
         return new CreateCategoryCommand(
             request.Name,
-            string.IsNullOrWhiteSpace(request.Description) ? null : request.Description, request.ParentId,
-            string.IsNullOrWhiteSpace(request.ImageUrl) ? null : request.ImageUrl);
+            string.IsNullOrWhiteSpace(request.Description) ? null : request.Description, request.ParentId, request.Image);
     }
 
     public static UpdateCategoryCommand ToUpdateCategoryCommand(this UpdateCategoryRequest request, Guid Id)
     {
         return new UpdateCategoryCommand(Id, request.Name,
-            string.IsNullOrWhiteSpace(request.Description) ? null : request.Description, request.ParentId,
-            string.IsNullOrWhiteSpace(request.ImageUrl) ? null : request.ImageUrl);
+            string.IsNullOrWhiteSpace(request.Description) ? null : request.Description, request.ParentId, request.Image);
     }
 }

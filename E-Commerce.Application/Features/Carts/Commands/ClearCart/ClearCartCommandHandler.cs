@@ -7,20 +7,16 @@ namespace E_Commerce.Application.Features.Carts.Commands.ClearCart;
 
 internal sealed class ClearCartCommandHandler : IRequestHandler<ClearCartCommand, Result<bool>>
 {
-    private readonly IUserContext _userContext;
     private readonly ICartRepository _cartRepository;
 
     public ClearCartCommandHandler(IUserContext userContext, ICartRepository cartRepository)
     {
-        _userContext = userContext;
         _cartRepository = cartRepository;
     }
 
     public async Task<Result<bool>> Handle(ClearCartCommand request, CancellationToken cancellationToken)
     {
-        var userId = _userContext.UserId;
-
-        await _cartRepository.DeleteAsync(userId, cancellationToken);
+        await _cartRepository.DeleteAsync(request.UserId, cancellationToken);
 
         return Result<bool>.Success(true);
     }

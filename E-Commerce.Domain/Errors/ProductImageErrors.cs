@@ -13,4 +13,5 @@ public class ProductImageErrors
     public static readonly Error DeleteFaild = new("ProductImage.DeleteFailed", "Failed to delete the image. Please try again.");
     public static readonly Error CannotDeleteLastImage = new("ProductImage.CannotDeleteLastImage", "Cannot delete the last image of a product. A product must have at least one image.");
     public static readonly Error SetPrimaryFailed = new("ProductImage.SetPrimaryFailed", "Failed to set the product image as primary.");
+    public static readonly Error AddFaild = new("ProductImage.AddFailed", "Failed to add the image to the product. Please try again.");
 }

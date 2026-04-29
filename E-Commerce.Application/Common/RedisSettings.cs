@@ -2,9 +2,6 @@
 
 public sealed class RedisSettings
 {
-    public string Host { get; set; } = null!;
-    public int Port { get; set; }
-    public int CartExpirationDays { get; set; }
-
-    public string ConnectionString => $"{Host}:{Port}";
+    public string ConnectionString { get; set; } = null!;
+    public int ExpirationDays { get; set; }
 }

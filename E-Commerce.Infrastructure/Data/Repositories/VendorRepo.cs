@@ -1,4 +1,4 @@
-﻿using E_Commerce.Application.Interfaces.Repositories;
+using E_Commerce.Application.Interfaces.Repositories;
 using E_Commerce.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
@@ -31,5 +31,16 @@ internal sealed class VendorRepo : IVendorRepository
     public async Task<bool> IsStoreNameUniquenessAsync(string storyName, CancellationToken ct)
         => !await _dbContex.Vendors.AnyAsync(v => v.StoreName == storyName);
 
+    public Task<Vendor?> GetVendorForAdminByIdAsync(Guid vendorId, CancellationToken cancellationToken = default)
+    {
+        if (vendorId == Guid.Empty)
+            return Task.FromResult<Vendor?>(null);
 
+        return _dbContex.Vendors
+            .IgnoreQueryFilters()
+            .AsNoTracking()
+            .Include(v => v.User)
+            .ThenInclude(u => u.Addresses)
+            .FirstOrDefaultAsync(v => v.Id == vendorId, cancellationToken);
+    }
 }

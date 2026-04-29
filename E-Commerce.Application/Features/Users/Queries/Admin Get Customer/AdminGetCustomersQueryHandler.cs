@@ -1,4 +1,4 @@
-﻿using E_Commerce.Application.Features.Users.DTOs;
+using E_Commerce.Application.Features.Users.DTOs;
 using E_Commerce.Application.Interfaces.Data;
 using E_Commerce.Domain.Shared;
 using MediatR;
@@ -18,62 +18,57 @@ internal sealed class AdminGetCustomersQueryHandler :
 
     public async Task<Result<CursorPagedResult<AdminCustomersResponse, Guid>>> Handle(AdminGetCustomersQuery request, CancellationToken cancellationToken)
     {
-        var baseQuery = _dbContext.Users.IgnoreQueryFilters().AsNoTracking();
+        var baseQuery = _dbContext.Users.IgnoreQueryFilters().AsNoTracking()
+            .Where(u => _dbContext.UserRoles
+                .Join(_dbContext.Roles,
+                    ur => ur.RoleId,
+                    role => role.Id,
+                    (ur, role) => new { ur.UserId, role.Name })
+                .Any(x => x.UserId == u.Id && x.Name == "Customer"));
 
         if (!string.IsNullOrWhiteSpace(request.SearchTerm))
         {
             var search = request.SearchTerm.Trim().ToLower();
             baseQuery = baseQuery.Where(u =>
                 u.Email!.ToLower().Contains(search) ||
-                (u.FirstName + " " + u.LastName).ToLower().Contains(search));
-        }
-
-        var query = from user in baseQuery
-                    join userRole in _dbContext.UserRoles on user.Id equals userRole.UserId into ur
-                    from userRole in ur.DefaultIfEmpty()
-                    join role in _dbContext.Roles on userRole.RoleId equals role.Id into r
-                    from role in r.DefaultIfEmpty()
-                    select new { User = user, RoleName = role != null ? role.Name : "User" };
-
-        if (!string.IsNullOrWhiteSpace(request.Role))
-        {
-            query = query.Where(x => x.RoleName == request.Role);
+                (u.FullName).ToLower().Contains(search));
         }
 
         if (!string.IsNullOrWhiteSpace(request.Status))
         {
             if (request.Status.Equals("Active", StringComparison.OrdinalIgnoreCase))
-                query = query.Where(x => !x.User.IsDeleted && (x.User.LockoutEnd == null || x.User.LockoutEnd <= DateTimeOffset.UtcNow));
+                baseQuery = baseQuery.Where(u => !u.IsDeleted && (u.LockoutEnd == null || u.LockoutEnd <= DateTimeOffset.UtcNow));
             else if (request.Status.Equals("Blocked", StringComparison.OrdinalIgnoreCase))
-                query = query.Where(x => x.User.LockoutEnd > DateTimeOffset.UtcNow);
+                baseQuery = baseQuery.Where(u => u.LockoutEnd > DateTimeOffset.UtcNow);
             else if (request.Status.Equals("Deleted", StringComparison.OrdinalIgnoreCase))
-                query = query.Where(x => x.User.IsDeleted);
+                baseQuery = baseQuery.Where(u => u.IsDeleted);
         }
 
-        query = query.OrderBy(x => x.User.Id);
+        baseQuery = baseQuery.OrderBy(u => u.Id);
 
         if (request.Cursor.HasValue)
-        {
-            query = query.Where(x => x.User.Id.CompareTo(request.Cursor.Value) > 0);
-        }
+            baseQuery = baseQuery.Where(u => u.Id.CompareTo(request.Cursor.Value) > 0);
 
         var itemsToFetch = request.Size + 1;
 
-        var resultList = await query.Take(itemsToFetch)
-            .Select(x => new AdminCustomersResponse(
-                x.User.Id,
-                x.User.FullName,
-                x.User.UserName!,
-                x.User.Email!,
-                x.User.PhoneNumber!,
-                x.User.ImageUrl,
-                x.User.DateOfBirth,
-                x.User.IsDeleted ? "Deleted" : 
-                (x.User.LockoutEnd != null && x.User.LockoutEnd > DateTimeOffset.UtcNow) ? "Blocked" : "Active"
+        var resultList = await baseQuery.Take(itemsToFetch)
+            .Select(u => new AdminCustomersResponse(
+                u.Id,
+                u.FullName,
+                u.UserName!,
+                u.Email!,
+                u.PhoneNumber!,
+                u.ImageUrl,
+                u.DateOfBirth,
+                u.IsDeleted ? "Deleted" :
+                (u.LockoutEnd != null && u.LockoutEnd > DateTimeOffset.UtcNow) ? "Blocked" : "Active"
             )).ToListAsync(cancellationToken);
 
- 
-        var nextCursor = resultList.Count > 0 ? resultList.Last().UserId : (Guid?)null;
+        bool hasMoreData = resultList.Count == itemsToFetch;
+
+        if(hasMoreData) resultList.RemoveAt(resultList.Count - 1);
+
+        var nextCursor = hasMoreData ? resultList.Last().UserId : (Guid?)null;
 
         var pagedResult = new CursorPagedResult<AdminCustomersResponse, Guid>(
             items: resultList,

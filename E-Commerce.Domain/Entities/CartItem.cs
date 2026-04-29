@@ -1,7 +1,4 @@
-﻿using E_Commerce.Domain.Errors;
-using E_Commerce.Domain.Shared;
-
-namespace E_Commerce.Domain.Entities;
+﻿namespace E_Commerce.Domain.Entities;
 
 public class CartItem
 {
@@ -11,7 +8,7 @@ public class CartItem
     public int Quantity { get; set; }
     public string? ImageUrl { get; set; }
 
-    public CartItem() { } 
+    public CartItem() { }
 
     public static CartItem Create(Guid productId, string name, decimal price, int quantity, string? imageUrl)
     {

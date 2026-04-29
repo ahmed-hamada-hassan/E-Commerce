@@ -21,15 +21,11 @@ internal sealed class UpdateUserCommandHandler : IRequestHandler<UpdateUserComma
     public async Task<Result<bool>> Handle(UpdateUserCommand request, CancellationToken cancellationToken)
     {
         var user = await _userManager.FindByIdAsync(request.Id.ToString());
-        if(user?.Id != request.Id)
-        {
-            _logger.LogWarning("User with id {UserId} attempted to update another user's information {AnotherUserId}.", request.Id, user?.Id);
-            return Result<bool>.Failure(ApplicationUserErrors.AccessDenied);
-        }
         if (user == null) return Result<bool>.Failure(ApplicationUserErrors.NotFound);
 
+
         var updateResult = user.Update(request.FirstName, request.MiddleName, request.LastName, request.Email,
-            request.UserName, request.PhoneNumber, request.ImageUrl, request.DateOfBirth);
+            request.UserName, request.PhoneNumber, request.DateOfBirth);
 
         if (updateResult.IsFailure) return Result<bool>.Failure(updateResult.Error);
 

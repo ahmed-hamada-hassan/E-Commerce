@@ -58,11 +58,16 @@ public class VendorProductsController : BaseApiController
     }
 
     [HttpPost]
-    public async Task<ActionResult<Guid>> AddProduct([FromForm] AddProductRequest productRequest, CancellationToken ct)
+    public async Task<ActionResult<Guid>> AddProduct([FromBody] AddProductRequest productRequest, CancellationToken ct)
     {
         var command = productRequest.ToCreateProductCommand(CurrentVendorId);
         var result = await _mediator.Send(command, ct);
-        return result.IsFailure ? HandleFailure(result) : Created($"/api/vendor/products/{result.Value}", new { ID = result.Value });
+        return result.IsFailure ? HandleFailure(result) :
+            CreatedAtAction(
+                nameof(GetMyProduct),
+                new { productId = result.Value },
+                new {ID = result.Value }
+            );
     }
 
     [HttpPut("{productId:guid}")]
@@ -90,12 +95,17 @@ public class VendorProductsController : BaseApiController
     }
 
     [HttpPost("{productId:guid}/images")]
-    public async Task<ActionResult> AddProductImage([FromRoute] Guid productId, [FromForm] IEnumerable<ImageRequest> images, CancellationToken ct)
+    public async Task<ActionResult> AddProductImage([FromRoute] Guid productID, [FromForm] IEnumerable<ImageRequest> images, CancellationToken ct)
     {
-        var mappedImages = images.Select(i => i.ToImageResponse()).ToList();
-        var command = new AddImageCommand(productId, CurrentVendorId, mappedImages);
+        var mappedImages = images.Select(i => i.ToImageDTO()).ToList();
+        var command = new AddImageCommand(productID, CurrentVendorId, mappedImages);
         var result = await _mediator.Send(command, ct);
-        return result.IsFailure ? HandleFailure(result) : Ok(result.Value);
+        return result.IsFailure ? HandleFailure(result) : 
+            CreatedAtAction(
+                nameof(GetProductImages),
+                new { productId = productID },
+                result.Value
+            );
     }
 
     [HttpGet("{productId:guid}/images")]

@@ -3,4 +3,4 @@ using MediatR;
 
 namespace E_Commerce.Application.Features.Carts.Commands.RemoveItem;
 
-public record RemoveItemCommand(Guid ProductId) : IRequest<Result<bool>>;
+public record RemoveItemCommand(Guid ProductId, Guid UserId) : IRequest<Result<bool>>;

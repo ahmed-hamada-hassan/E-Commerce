@@ -19,7 +19,7 @@ public static class CartMapper
                 ImageUrl : i.ImageUrl,
                 SubTotal : i.UnitPrice * i.Quantity
             )).ToList(),
-            TotalPrice : cart.TotalPrice
+            TotalPrice : cart.Items.Sum(i => i.UnitPrice * i.Quantity)
         );
 
     }

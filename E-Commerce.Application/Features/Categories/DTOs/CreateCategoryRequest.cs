@@ -1,3 +1,5 @@
-﻿namespace E_Commerce.Application.Features.Categories.DTOs;
+﻿using Microsoft.AspNetCore.Http;
 
-public record CreateCategoryRequest (string Name, string? Description, Guid? ParentId, string? ImageUrl);
+namespace E_Commerce.Application.Features.Categories.DTOs;
+
+public record CreateCategoryRequest (string Name, string? Description, Guid? ParentId, IFormFile? Image);

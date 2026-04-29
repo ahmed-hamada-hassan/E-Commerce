@@ -9,19 +9,16 @@ namespace E_Commerce.Application.Features.Carts.Commands.RemoveItem;
 internal sealed class RemoveItemCommandHandler : IRequestHandler<RemoveItemCommand, Result<bool>>
 {
     private readonly ICartRepository _cartRepository;
-    private readonly IUserContext _userContext;
 
-    public RemoveItemCommandHandler(ICartRepository cartRepository, IUserContext userContext)
+    public RemoveItemCommandHandler(ICartRepository cartRepository)
     {
         _cartRepository = cartRepository;
-        _userContext = userContext;
     }
 
     public async Task<Result<bool>> Handle(RemoveItemCommand request, CancellationToken cancellationToken)
     {
-        var userId = _userContext.UserId;
 
-        var cart = await _cartRepository.GetAsync(userId, cancellationToken);
+        var cart = await _cartRepository.GetAsync(request.UserId, cancellationToken);
 
         if(cart is null) return Result<bool>.Failure(CartErrors.CartNotFound);
 
@@ -29,8 +26,8 @@ internal sealed class RemoveItemCommandHandler : IRequestHandler<RemoveItemComma
         if(itemToRemove is null) return Result<bool>.Failure(CartErrors.CartItemNotFound);
 
         cart.Items.Remove(itemToRemove);
-        if(cart.Items.Any()) await _cartRepository.UpdateAsync(cart, cancellationToken);
-        else await _cartRepository.DeleteAsync(userId, cancellationToken);
+        if(cart.Items.Any()) await _cartRepository.UpdateAsync(cart, request.UserId, cancellationToken);
+        else await _cartRepository.DeleteAsync(request.UserId, cancellationToken);
 
         return Result<bool>.Success(true);
     }
