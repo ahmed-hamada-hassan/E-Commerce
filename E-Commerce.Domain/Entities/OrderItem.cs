@@ -10,6 +10,7 @@ public class OrderItem
     public Guid ProductId { get; private set; }
     public string ProductName { get; private set; } = null!;
     public int Quantity { get; private set; }
+    public int RefundedQuantity { get; private set; }
     public decimal UnitPrice { get; private set; }
 
     private OrderItem(Guid id, Guid orderId, Guid productId, string productName, int quantity, decimal unitPrice)
@@ -40,4 +41,11 @@ public class OrderItem
         var orderItem = new OrderItem(Guid.NewGuid(), orderId, productId, productName, quantity, unitPrice);
         return Result<OrderItem>.Success(orderItem);
     }
+
+    public void MarkAsRefunded(int quantity)
+    {
+        RefundedQuantity += quantity;
+    }
+
+    public int GetAvailableQuantityForRefund() => Quantity - RefundedQuantity;
 }

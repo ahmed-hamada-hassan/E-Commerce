@@ -1,5 +1,6 @@
 ﻿using E_Commerce.Application.Interfaces.Data;
 using E_Commerce.Application.Interfaces.Repositories;
+using E_Commerce.Application.Interfaces.Services;
 using E_Commerce.Domain.Entities;
 using E_Commerce.Domain.Enums;
 using E_Commerce.Domain.Errors;
@@ -19,14 +20,17 @@ internal sealed class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderComma
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IProductRepository _productRepository;
     private readonly ILogger<PlaceOrderCommandHandler> _logger;
+    private readonly IPaymentFactory _paymentFactory;
 
     public PlaceOrderCommandHandler(ICartRepository cartRepository, IOrderRepository orderRepository, 
-        IUnitOfWork unitOfWork, UserManager<ApplicationUser> userManager, IProductRepository productRepository, ILogger<PlaceOrderCommandHandler> logger)
+        IUnitOfWork unitOfWork, UserManager<ApplicationUser> userManager, IProductRepository productRepository, 
+        ILogger<PlaceOrderCommandHandler> logger, IPaymentFactory paymentFactory)
     {
         _cartRepository = cartRepository;
         _orderRepository = orderRepository;
         _unitOfWork = unitOfWork;
         _userManager = userManager;
+        _paymentFactory = paymentFactory;
         _logger = logger;
         _productRepository = productRepository;
     }
@@ -115,6 +119,21 @@ internal sealed class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderComma
             }
 
             order.Value!.AddOrderItem(product.Id, product.Name, product.Price, item.Quantity);
+        }
+
+        var paymentService = _paymentFactory.GetPaymentService(request.PaymentMethod);
+        if(paymentService is null)
+        {
+            _logger.LogWarning("Unsupported payment method {PaymentMethod} for user with id {UserId}.", request.PaymentMethod, request.UserId);
+            return Result<Guid>.Failure(PaymentErrors.UnsupportedPaymentMethod);
+        }
+
+        var paymentResult = await paymentService.ProcessPaymentAsync(order.Value!, order.Value!.TotalAmount, cancellationToken);
+
+        if(paymentResult.IsFailure)
+        {
+            _logger.LogWarning("Failed to process payment for user {UserId}. Error: {Error}", request.UserId, paymentResult.Error); 
+            return Result<Guid>.Failure(paymentResult.Error);
         }
 
         var orderId = await _orderRepository.AddAsync(order.Value!, cancellationToken);

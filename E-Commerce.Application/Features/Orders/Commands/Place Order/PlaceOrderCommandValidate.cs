@@ -1,6 +1,4 @@
-﻿using E_Commerce.Application.Features.Addresses.Commands;
-using E_Commerce.Domain.Entities;
-using FluentValidation;
+﻿using FluentValidation;
 
 namespace E_Commerce.Application.Features.Orders.Commands.Place_Order;
 
@@ -12,8 +10,8 @@ internal sealed class PlaceOrderCommandValidate : AbstractValidator<PlaceOrderCo
             .NotEmpty().WithMessage("User ID cannot be empty.");
 
         RuleFor(x => x)
-            .Must(x => (x.UseDefaulShippingAddress == true) || 
-                                      x.AddressId.HasValue || 
+            .Must(x => (x.UseDefaulShippingAddress == true) ||
+                                      x.AddressId.HasValue ||
                                       x.NewAddress is not null
                                       )
             .WithMessage("A shipping address is required to place an order. Please provide a valid address or select the default shipping address.");
@@ -34,5 +32,8 @@ internal sealed class PlaceOrderCommandValidate : AbstractValidator<PlaceOrderCo
                     .NotEmpty().WithMessage("Country is required.");
             })
             .When(x => x.NewAddress != null);
+
+        RuleFor(x => x.PaymentMethod)
+            .IsInEnum().WithMessage("Invalid payment method. Please select a valid payment method.");
     }
 }

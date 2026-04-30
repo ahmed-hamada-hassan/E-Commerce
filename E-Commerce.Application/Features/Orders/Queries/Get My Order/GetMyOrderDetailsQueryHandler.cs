@@ -41,6 +41,7 @@ internal sealed class GetMyOrderDetailsQueryHandler : IRequestHandler<GetMyOrder
             order.TotalAmount,
             order.ShippingCost,
             order.ShippingAddress,
+            order.Payment!.PaymentMethod.ToString(),
             order.OrderItems.Select(oi => new OrderItemResponse(oi.ProductId, oi.ProductName, oi.Quantity,
             oi.UnitPrice, oi.Quantity * oi.UnitPrice)).ToList(),
             order.Cancellation is not null ? new CancellationResponse(order.Cancellation.CancellationDate, order.Cancellation.Reason) : null

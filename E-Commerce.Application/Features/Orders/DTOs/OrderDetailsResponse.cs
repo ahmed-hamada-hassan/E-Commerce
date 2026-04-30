@@ -7,6 +7,7 @@ public record OrderDetailsResponse(
     decimal TotalAmount,
     decimal ShippingCost,
     string ShippingAddress,
+    string PaymentMethod,
     List<OrderItemResponse> Items,
     CancellationResponse? Cancellation
 );

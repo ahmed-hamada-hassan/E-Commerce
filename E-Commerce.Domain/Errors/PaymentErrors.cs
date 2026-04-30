@@ -7,4 +7,6 @@ public class PaymentErrors
     public static readonly Error EmptyOrderId = new("Payment.EmptyOrderId", "Order ID cannot be empty.");
     public static readonly Error AmountCannotBeNegative = new("Payment.AmountCannotBeNegative", "Payment amount must be greater than zero.");
     public static readonly Error InvalidPaymentMethod = new("Payment.InvalidPaymentMethod", "The provided payment method is not supported or invalid.");
+    public static readonly Error NotFound = new("Payment.NotFound", "Payment not found.");
+    public static readonly Error UnsupportedPaymentMethod = new("Payment.UnsupportedPaymentMethod", "The specified payment method is not supported.");
 }

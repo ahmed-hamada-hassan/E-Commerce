@@ -5,5 +5,6 @@ public enum PaymentMethod
     Stripe = 1,
     PayPal = 2,
     ApplePay = 3,
-    Crypto = 4
+    Crypto = 4,
+    CashOnDelivery = 5
 }

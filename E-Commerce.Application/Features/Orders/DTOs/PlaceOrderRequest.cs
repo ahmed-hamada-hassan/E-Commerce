@@ -1,3 +1,5 @@
-﻿namespace E_Commerce.Application.Features.Orders.DTOs;
+﻿using E_Commerce.Domain.Enums;
 
-public record PlaceOrderRequest(bool? UseDefaultShippingAddress, Guid? AddressId, PlaceOrderAddress? NewAddress);
+namespace E_Commerce.Application.Features.Orders.DTOs;
+
+public record PlaceOrderRequest(bool? UseDefaultShippingAddress, Guid? AddressId, PlaceOrderAddress? NewAddress, PaymentMethod PaymentMethod);

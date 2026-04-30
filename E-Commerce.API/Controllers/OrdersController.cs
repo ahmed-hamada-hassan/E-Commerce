@@ -28,7 +28,7 @@ public class OrdersController : BaseApiController
     public async Task<ActionResult<Guid>> PlaceOrder([FromBody] PlaceOrderRequest orderRequest, CancellationToken ct)
     {
         var result = await _mediator.Send(new PlaceOrderCommand(CurrentUserId, orderRequest.UseDefaultShippingAddress,
-            orderRequest.AddressId, orderRequest.NewAddress), ct);
+            orderRequest.AddressId, orderRequest.NewAddress, orderRequest.PaymentMethod), ct);
         return result.IsFailure ? HandleFailure(result) : CreatedAtAction(nameof(GetDetailsOrder), new { orderId = result.Value }, result.Value);
     }
 

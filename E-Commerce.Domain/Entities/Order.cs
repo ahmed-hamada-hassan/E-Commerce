@@ -15,12 +15,11 @@ public class Order
     public decimal TotalAmount { get; private set; }
     public decimal ShippingCost { get; private set; }
     public Cancellation? Cancellation { get; private set; }
+    public Payment? Payment { get; private set; }
 
     private readonly List<OrderItem> _orderItems = new();
-    private readonly List<Payment> _payments = new();
     private readonly List<Refund> _refunds = new();
     public IReadOnlyCollection<OrderItem> OrderItems => _orderItems.AsReadOnly();
-    public IReadOnlyCollection<Payment> Payments => _payments.AsReadOnly();
     public IReadOnlyCollection<Refund> Refunds => _refunds.AsReadOnly();
 
     private Order(Guid id, Guid userId, Guid shippingAddressId, string shippingAddress, DateTime orderedDate, OrderStatus status, decimal shippingCost)
@@ -89,8 +88,39 @@ public class Order
     {
         Status = OrderStatus.Shipped;
     }
-     public void MarkAsDelivered()
+    public void MarkAsDelivered()
     {
         Status = OrderStatus.Delivered;
+    }
+
+    public void AddPayment(Payment payment)
+    {
+        Payment = payment;
+    }
+
+    public Result<Guid> ApplyRefund(List<(Guid productId, int quantity)> itemsToRefund, string reason)
+    {
+        decimal totalCalculatedRefund = 0;
+
+        foreach(var item in itemsToRefund)
+        {
+            var orderItem = _orderItems.FirstOrDefault(oi => oi.ProductId == item.productId);
+            if(orderItem is null)
+                return Result<Guid>.Failure(RefundErrors.ItemNotFound);
+            if(item.quantity > orderItem.Quantity)
+                return Result<Guid>.Failure(RefundErrors.InvalidQuantity);
+
+            totalCalculatedRefund += (orderItem.UnitPrice * item.quantity);
+            orderItem.MarkAsRefunded(item.quantity);
+        }
+
+        var refundResult = Refund.Create(Id, Payment!.Id, totalCalculatedRefund, reason);
+
+        if(refundResult.IsFailure)
+            return Result<Guid>.Failure(refundResult.Error);
+
+        _refunds.Add(refundResult.Value!);
+
+        return Result<Guid>.Success(refundResult.Value!.Id);
     }
 }

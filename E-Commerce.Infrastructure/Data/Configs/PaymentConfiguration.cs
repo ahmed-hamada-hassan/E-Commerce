@@ -40,8 +40,8 @@ public class PaymentConfiguration : IEntityTypeConfiguration<Payment>
             .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasOne<Order>()
-            .WithMany(o => o.Payments)
-            .HasForeignKey(p => p.OrderId)
+            .WithOne()
+            .HasForeignKey<Payment>(p => p.OrderId)
             .OnDelete(DeleteBehavior.Cascade);
         #endregion
 
