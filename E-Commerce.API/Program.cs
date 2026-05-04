@@ -185,6 +185,12 @@ builder.Services.AddAuthorization(options =>
 
     options.AddPolicy("SuperAdmin-Only", policy =>
         policy.RequireRole(AppRoles.SuperAdmin));
+
+    options.AddPolicy("Representative-Only", policy =>
+        policy.RequireRole(AppRoles.Representative));
+
+    options.AddPolicy("Representative-SuperAdmin-Only", policy =>
+        policy.RequireRole(AppRoles.Representative, AppRoles.SuperAdmin));
 });
 
 builder.Services.AddRateLimiter(options =>

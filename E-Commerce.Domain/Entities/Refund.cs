@@ -8,6 +8,7 @@ public class Refund
 {
     public Guid Id { get; private set; }
     public Guid OrderId { get; private set; }
+    public Guid AdminId { get; private set; }
     public Order Order { get; private set; } = null!;
     public Guid PaymentId { get; private set; }
     public Payment Payment { get; private set; } = null!;
@@ -17,11 +18,12 @@ public class Refund
     public RefundStatus RefundStatus { get; private set; }
     public string? RefundTransactionId { get; private set; }
 
-    private Refund(Guid id, Guid orderId, Guid paymentId, decimal amount, string reason, 
+    private Refund(Guid id, Guid orderId, Guid adminId, Guid paymentId, decimal amount, string reason, 
         DateTime refundDate, RefundStatus refundStatus, string? refundTransactionId)
     {
         Id = id;
         OrderId = orderId;
+        AdminId = adminId;
         PaymentId = paymentId;
         Amount = amount;
         Reason = reason;
@@ -32,10 +34,12 @@ public class Refund
 
     protected Refund() { }
 
-    public static Result<Refund> Create (Guid orderId, Guid paymentId, decimal amount, string reason)
+    public static Result<Refund> Create (Guid orderId, Guid adminId, Guid paymentId, decimal amount, string reason)
     {
         if (orderId == Guid.Empty)
             return Result<Refund>.Failure(RefundErrors.EmptyOrderId);
+        if (adminId == Guid.Empty)
+            return Result<Refund>.Failure(RefundErrors.EmptyAdminId);
         if (paymentId == Guid.Empty)
             return Result<Refund>.Failure(RefundErrors.EmptyPaymentId);
         if (amount <= 0)
@@ -43,7 +47,7 @@ public class Refund
         if (string.IsNullOrWhiteSpace(reason))
             return Result<Refund>.Failure(RefundErrors.EmptyReason);
 
-        var refund = new Refund(Guid.NewGuid(), orderId, paymentId, amount, reason, 
+        var refund = new Refund(Guid.NewGuid(), orderId, adminId, paymentId, amount, reason, 
             DateTime.UtcNow, RefundStatus.Pending, null);
         return Result<Refund>.Success(refund);
     }

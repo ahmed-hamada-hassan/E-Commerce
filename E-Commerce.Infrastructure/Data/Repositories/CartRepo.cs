@@ -7,12 +7,12 @@ using System.Text.Json;
 
 namespace E_Commerce.Infrastructure.Data.Repositories;
 
-internal sealed class CartRepository : ICartRepository
+internal sealed class CartRepo : ICartRepository
 {
     private readonly IDistributedCache _cache;
     private readonly RedisSettings _redisSettings;
     private const string CartCachePrefix = "cart:";
-    public CartRepository(IDistributedCache cache, IOptions<RedisSettings> redisSettings)
+    public CartRepo(IDistributedCache cache, IOptions<RedisSettings> redisSettings)
     {
         _cache = cache;
         _redisSettings = redisSettings.Value;

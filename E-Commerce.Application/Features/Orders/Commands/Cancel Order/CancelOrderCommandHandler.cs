@@ -1,7 +1,5 @@
 ﻿using E_Commerce.Application.Interfaces.Data;
 using E_Commerce.Application.Interfaces.Repositories;
-using E_Commerce.Domain.Entities;
-using E_Commerce.Domain.Enums;
 using E_Commerce.Domain.Errors;
 using E_Commerce.Domain.Shared;
 using MediatR;

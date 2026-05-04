@@ -19,8 +19,10 @@ public class Order
 
     private readonly List<OrderItem> _orderItems = new();
     private readonly List<Refund> _refunds = new();
+    private readonly List<ReturnRequest> _returnRequests = new();
     public IReadOnlyCollection<OrderItem> OrderItems => _orderItems.AsReadOnly();
     public IReadOnlyCollection<Refund> Refunds => _refunds.AsReadOnly();
+    public IReadOnlyCollection<ReturnRequest> ReturnRequests => _returnRequests.AsReadOnly();
 
     private Order(Guid id, Guid userId, Guid shippingAddressId, string shippingAddress, DateTime orderedDate, OrderStatus status, decimal shippingCost)
     {
@@ -98,7 +100,7 @@ public class Order
         Payment = payment;
     }
 
-    public Result<Guid> ApplyRefund(List<(Guid productId, int quantity)> itemsToRefund, string reason)
+    public Result<Guid> ApplyRefund(Guid adminId, List<(Guid productId, int quantity)> itemsToRefund, string reason)
     {
         decimal totalCalculatedRefund = 0;
 
@@ -114,7 +116,7 @@ public class Order
             orderItem.MarkAsRefunded(item.quantity);
         }
 
-        var refundResult = Refund.Create(Id, Payment!.Id, totalCalculatedRefund, reason);
+        var refundResult = Refund.Create(Id, adminId, Payment!.Id, totalCalculatedRefund, reason);
 
         if(refundResult.IsFailure)
             return Result<Guid>.Failure(refundResult.Error);
@@ -122,5 +124,30 @@ public class Order
         _refunds.Add(refundResult.Value!);
 
         return Result<Guid>.Success(refundResult.Value!.Id);
+    }
+
+    public Result<Guid> AddReturnRequest(Guid productId, byte quantity, string reason)
+    {
+        var result =  ReturnRequest.Create(Id, productId, quantity, reason);
+        if(result.IsFailure)
+            return Result<Guid>.Failure(result.Error);
+
+        _returnRequests.Add(result.Value!);
+
+        return Result<Guid>.Success(result.Value!.Id);
+    }
+
+    public void UpdateStatusAfterReturn()
+    {
+        var totalOrdered = _orderItems.Sum(oi => oi.Quantity);
+        var totalReturned = _returnRequests.Where(rr => rr.Status == ReturnStatus.Approved || rr.Status == ReturnStatus.Completed)
+            .Sum(rr => rr.Quantity);
+
+        if(totalReturned == 0) return;
+
+        if(totalReturned == totalOrdered)
+            Status = OrderStatus.Returned;
+        else
+            Status = OrderStatus.PartiallyReturned;
     }
 }

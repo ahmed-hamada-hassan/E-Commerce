@@ -6,9 +6,10 @@ public static class AppRoles
     public const string Customer = "Customer";
     public const string Vendor = "Vendor";
     public const string SuperAdmin = "Super Admin";
+    public const string Representative = "Representative";
 
     public static readonly HashSet<string> AllRoles = new HashSet<string>
     {
-        Admin, Customer, Vendor, SuperAdmin
+        Admin, Customer, Vendor, SuperAdmin, Representative
     };
 }

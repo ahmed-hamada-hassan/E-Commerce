@@ -1,6 +1,7 @@
 ﻿using E_Commerce.Application.Common;
 using E_Commerce.Application.Features.Orders.Commands.Cancel_Order;
 using E_Commerce.Application.Features.Orders.Commands.Place_Order;
+using E_Commerce.Application.Features.Orders.Commands.Return_Request_Order;
 using E_Commerce.Application.Features.Orders.DTOs;
 using E_Commerce.Application.Features.Orders.Queries.Get_My_Order;
 using E_Commerce.Domain.Shared;
@@ -52,6 +53,14 @@ public class OrdersController : BaseApiController
     {
         var result = await _mediator.Send(new GetMyOrderSummaryQuery(CurrentUserId,
             paginationParams.cursor, paginationParams.size), ct);
+        return result.IsFailure ? HandleFailure(result) : Ok(result.Value);
+    }
+
+    [HttpPost("{orderId:guid}/return-request")]
+    public async Task<ActionResult> RequestReturn([FromRoute] Guid orderId, [FromBody] ReturnRequestOrderRequest returnRequest, CancellationToken ct)
+    {
+        var command = new ReturnRequestOrderCommand(orderId, CurrentUserId, returnRequest.Items, returnRequest.Reason);
+        var result = await _mediator.Send(command, ct);
         return result.IsFailure ? HandleFailure(result) : Ok(result.Value);
     }
 }

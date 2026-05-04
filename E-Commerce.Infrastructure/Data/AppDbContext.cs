@@ -34,6 +34,7 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid
     #region Finance DbSets
     public DbSet<Payment> Payments { get; set; }
     public DbSet<Refund> Refunds { get; set; }
+    public DbSet<ReturnRequest> ReturnRequests { get; set; }
     #endregion
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

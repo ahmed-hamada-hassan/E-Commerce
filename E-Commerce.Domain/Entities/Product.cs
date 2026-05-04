@@ -161,4 +161,12 @@ public class Product : SoftDeletable
         IsDeleted = false;
         DeleteOn = null;
     }
+    public Result<bool> Restock(int quantity)
+    {
+        if (quantity <= 0)
+            return Result<bool>.Failure(ProductErrors.InvalidQuantity);
+
+        StockQuantity += quantity;
+        return Result<bool>.Success(true);
+    }
 }
