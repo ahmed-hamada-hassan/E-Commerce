@@ -6,6 +6,7 @@ public class ReturnRequestErrors
 {
     public static readonly Error EmptyOrderId = new("ReturnRequest.EmptyOrderId", "Order ID cannot be empty.");
     public static readonly Error EmptyProductId = new("ReturnRequest.EmptyProductId", "Product ID cannot be empty.");
+    public static readonly Error EmptyUserId = new("ReturnRequest.EmptyUserId", "User ID cannot be empty.");
     public static readonly Error InvalidQuantity = new("ReturnRequest.InvalidQuantity", "Quantity must be greater than zero.");
     public static readonly Error InvalidStatus = new("ReturnRequest.InvalidStatus", "Invalid return request status.");
     public static readonly Error EmptyReason = new("ReturnRequest.EmptyReason", "Reason for return cannot be empty.");

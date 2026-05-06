@@ -23,4 +23,6 @@ public interface IAppDbContext : IScopedService
 
     DbSet<Payment> Payments { get; set; }
     DbSet<Refund> Refunds { get; set; }
+    DbSet<ReturnRequest> ReturnRequests { get; set; }
+
 }

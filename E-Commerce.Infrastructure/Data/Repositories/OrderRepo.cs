@@ -96,4 +96,11 @@ internal sealed class OrderRepo : IOrderRepository
             .Include(o => o.OrderItems)
             .FirstOrDefaultAsync(o => o.Id == orderId && o.Status == OrderStatus.Processing, cancellationToken);
     }
+
+    public async Task<bool> HasUserPurchasedProductAsync(Guid userId, Guid productId, CancellationToken cancellationToken = default)
+    {
+        return await _dbContext.Orders.AsNoTracking()
+            .AnyAsync(o => o.UserId == userId && o.OrderItems.Any(oi => oi.ProductId == productId) && 
+                (o.Status == OrderStatus.Delivered), cancellationToken);
+    }
 }

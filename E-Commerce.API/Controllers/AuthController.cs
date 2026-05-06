@@ -3,7 +3,6 @@ using E_Commerce.Application.Features.Auth.Command.Login;
 using E_Commerce.Application.Features.Auth.Command.RefreshToken;
 using E_Commerce.Application.Features.Auth.DTOs;
 using MediatR;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 
@@ -46,7 +45,7 @@ public class AuthController : BaseApiController
     {
         var register = request.ToRegisterCommand();
         var result = await _mediator.Send(register);
-        
+
         return result.IsFailure ? HandleFailure(result) : Ok(result.Value);
     }
 

@@ -16,4 +16,5 @@ public interface IOrderRepository : IScopedService
         CancellationToken cancellationToken = default);
     Task<(int TotalProcessing, int DayProcessing)> GetProcessingStatsAsync(DateTimeOffset day, CancellationToken cancellationToken);
     Task<Order?> GetProcessingOrderById(Guid orderId, CancellationToken cancellationToken = default);
+    Task<bool> HasUserPurchasedProductAsync(Guid userId, Guid productId, CancellationToken cancellationToken = default);
 }
