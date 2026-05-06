@@ -385,6 +385,16 @@ The API will be available at `https://localhost:5001` and the interactive API do
 https://localhost:5001/scalar/v1
 ```
 
+### 🧪 Test Accounts
+
+The database is seeded with default accounts for testing. You can use these credentials to explore different role-based functionalities:
+
+| Role | Email | Password |
+|:-----|:------|:---------|
+| **Super Admin** | `admin@ecommerce.com` | `Admin@123` |
+| **Vendor** | `vendor@ecommerce.com` | `Vendor@123` |
+| **Customer** | `customer@ecommerce.com` | `Customer@123` |
+
 <br/>
 
 ---

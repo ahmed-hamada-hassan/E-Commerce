@@ -350,8 +350,7 @@ namespace E_Commerce.Infrastructure.Migrations
                     PaymentMethod = table.Column<string>(type: "nvarchar(25)", maxLength: 25, nullable: false),
                     PaymentStatus = table.Column<string>(type: "nvarchar(25)", maxLength: 25, nullable: false),
                     PaymentDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    TransactionId = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: true),
-                    OrderId1 = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                    TransactionId = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -363,12 +362,6 @@ namespace E_Commerce.Infrastructure.Migrations
                         principalTable: "Orders",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Payments_Orders_OrderId1",
-                        column: x => x.OrderId1,
-                        principalSchema: "CheckOut",
-                        principalTable: "Orders",
-                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -631,14 +624,6 @@ namespace E_Commerce.Infrastructure.Migrations
                 table: "Payments",
                 column: "OrderId",
                 unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Payments_OrderId1",
-                schema: "Finance",
-                table: "Payments",
-                column: "OrderId1",
-                unique: true,
-                filter: "[OrderId1] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ProductImages_ProductId_IsPrimary",

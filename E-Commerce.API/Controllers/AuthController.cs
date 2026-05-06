@@ -3,6 +3,7 @@ using E_Commerce.Application.Features.Auth.Command.Login;
 using E_Commerce.Application.Features.Auth.Command.RefreshToken;
 using E_Commerce.Application.Features.Auth.DTOs;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 
@@ -40,7 +41,7 @@ public class AuthController : BaseApiController
 
 
     [HttpPost("register")]
-    // [Authorize(Policy = "SuperAdmin-Only")]
+    [Authorize(Policy = "SuperAdmin-Only")]
     public async Task<ActionResult<AuthResponse>> Register([FromForm] RegisterRequest request)
     {
         var register = request.ToRegisterCommand();

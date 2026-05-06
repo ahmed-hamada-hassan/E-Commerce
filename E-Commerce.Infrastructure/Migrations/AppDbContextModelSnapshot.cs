@@ -396,9 +396,6 @@ namespace E_Commerce.Infrastructure.Migrations
                     b.Property<Guid>("OrderId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("OrderId1")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<DateTime>("PaymentDate")
                         .HasColumnType("datetime2");
 
@@ -420,10 +417,6 @@ namespace E_Commerce.Infrastructure.Migrations
 
                     b.HasIndex("OrderId")
                         .IsUnique();
-
-                    b.HasIndex("OrderId1")
-                        .IsUnique()
-                        .HasFilter("[OrderId1] IS NOT NULL");
 
                     b.ToTable("Payments", "Finance");
                 });
@@ -872,14 +865,10 @@ namespace E_Commerce.Infrastructure.Migrations
             modelBuilder.Entity("E_Commerce.Domain.Entities.Payment", b =>
                 {
                     b.HasOne("E_Commerce.Domain.Entities.Order", null)
-                        .WithOne()
+                        .WithOne("Payment")
                         .HasForeignKey("E_Commerce.Domain.Entities.Payment", "OrderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("E_Commerce.Domain.Entities.Order", null)
-                        .WithOne("Payment")
-                        .HasForeignKey("E_Commerce.Domain.Entities.Payment", "OrderId1");
                 });
 
             modelBuilder.Entity("E_Commerce.Domain.Entities.Product", b =>
