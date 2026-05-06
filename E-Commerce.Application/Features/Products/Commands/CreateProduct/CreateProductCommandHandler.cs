@@ -29,7 +29,7 @@ internal sealed class CreateProductCommandHandler : IRequestHandler<CreateProduc
     public async Task<Result<Guid>> Handle(CreateProductCommand request, CancellationToken cancellationToken)
     {
         // This way will be more efficient in case the vendor is deactivated after the user logged in
-        var vendor = await _vendorRepository.GetByUserIdAsync(request.VendorId, cancellationToken);
+        var vendor = await _vendorRepository.GetByIdAsync(request.VendorId, cancellationToken);
         if (vendor is null) return Result<Guid>.Failure(VendorErrors.NotFound);
 
         if (!vendor.IsActive)

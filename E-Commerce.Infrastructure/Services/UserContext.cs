@@ -15,7 +15,7 @@ internal sealed class UserContext : IUserContext
     }
 
     private ClaimsPrincipal? User => _httpContextAccessor.HttpContext?.User;
-    public Guid UserId => Guid.TryParse(User?.FindFirstValue(JwtRegisteredClaimNames.Sub), out var id) ? id : Guid.Empty;
+    public Guid UserId => Guid.TryParse(User?.FindFirstValue(ClaimTypes.NameIdentifier), out var id) ? id : Guid.Empty;
     public bool IsAuthenticated => User?.Identity?.IsAuthenticated ?? false;
     public string? Email => User?.FindFirstValue(JwtRegisteredClaimNames.Email);
     public Guid? VendorId => Guid.TryParse(User?.FindFirstValue("vendor_id"), out var vendorId) ? vendorId : null;

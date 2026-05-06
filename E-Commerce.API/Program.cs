@@ -51,10 +51,11 @@ builder.Services.AddOptions<CloudinarySettings>()
     .ValidateDataAnnotations()
     .ValidateOnStart();
 
-var redisSettings = builder.Configuration.GetSection("RedisSettings").Get<RedisSettings>();
+builder.Services.Configure<RedisSettings>(builder.Configuration.GetSection("RedisSettings"));
+var connectionString = builder.Configuration.GetValue<string>("RedisSettings:ConnectionString");
 builder.Services.AddStackExchangeRedisCache(options =>
 {
-    options.Configuration = redisSettings?.ConnectionString;
+    options.Configuration = connectionString;
     options.InstanceName = "E-Commerce_";
 });
 
@@ -110,6 +111,7 @@ builder.Services.Scan(scan => scan
 );
 
 builder.Services.AddHostedService<ProductCleanupBackgroundService>();
+builder.Services.AddHostedService<OrderProcessingBackgroundService>();
 
 builder.Services.AddMediatR(cfg =>
 {

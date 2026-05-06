@@ -78,7 +78,7 @@
 
 ## 📖 About
 
-**E-Commerce API** is a full-featured backend system that powers modern e-commerce operations — from user registration and product management to order processing, payments, returns, and feedback. The API is designed following **Clean Architecture** principles with **CQRS** (Command Query Responsibility Segregation) via MediatR, ensuring separation of concerns, testability, and maintainability at scale.
+**E-Commerce API** is a full-featured backend system powering modern e-commerce operations — from user registration and product management to order processing, payments, returns, and feedback. Designed following **Clean Architecture** principles with **CQRS** via MediatR, ensuring separation of concerns, testability, and maintainability at scale.
 
 ### 🎯 Problem vs. Solution
 
@@ -112,16 +112,16 @@
 
 ### 📦 Product Management
 - Full CRUD with soft-delete and restore
-- Multi-image upload via Cloudinary
+- Multi-image upload, reorder, and set-primary via Cloudinary
 - Vendor-specific product catalogs
-- Category management with hierarchy
-- Background cleanup jobs for expired products
+- Category management with soft-delete & restore
+- Background cleanup jobs for orphaned products
 
 ### 🛒 Order Processing
 - Cart management with real-time stock validation
-- Multi-status order lifecycle tracking
+- Multi-status order lifecycle (Processing → Shipped → Delivered)
 - Order cancellation workflows
-- Representative order assignment
+- Representative return request handling
 
 </td>
     <td>
@@ -143,7 +143,7 @@
 - Global exception handling middleware
 - Structured logging with Serilog
 - Cursor & offset pagination support
-- Database seeding with initial data
+- **Automated DB seeding** — roles, users, vendor profiles, and addresses on first run
 
 </td>
   </tr>
@@ -156,8 +156,6 @@
 <br/>
 
 ## 🏛️ Clean Architecture
-
-The solution strictly follows the **Clean Architecture** pattern with four independent layers. Dependencies flow **inward only** — outer layers depend on inner layers, never the reverse.
 
 ```
                     ┌──────────────────────────────────┐
@@ -194,74 +192,79 @@ E-Commerce/
 │
 ├── 📁 E-Commerce.API/                    # Presentation Layer
 │   ├── 📁 Contracts/                     # Mapping extensions (Entity ↔ DTO)
-│   ├── 📁 Controllers/                   # API endpoints
-│   │   ├── AuthController.cs             # Registration & login
-│   │   ├── AdminCategoriesController.cs  # Category management (admin)
-│   │   ├── AdminProductsController.cs    # Product management (admin)
-│   │   ├── AdminOrdersController.cs      # Order management (admin)
-│   │   ├── AdminCustomersController.cs   # Customer management (admin)
-│   │   ├── AdminVendorsController.cs     # Vendor management (admin)
-│   │   ├── AdminFeedbackController.cs    # Feedback moderation (admin)
-│   │   ├── CartController.cs             # Shopping cart
-│   │   ├── OrdersController.cs           # Customer orders
-│   │   ├── ProductFeedbackController.cs  # Product reviews
-│   │   ├── VendorProductsController.cs   # Vendor product CRUD
-│   │   └── RepresentativeOrderController # Representative orders
+│   ├── 📁 Controllers/
+│   │   ├── BaseApiController.cs          # CurrentUserId, CurrentVendorId helpers
+│   │   ├── AuthController.cs             # Register (customer/vendor/admin) & login
+│   │   ├── AdminCategoriesController.cs  # Category CRUD + restore (SuperAdmin)
+│   │   ├── AdminProductsController.cs    # Product suspend/unsuspend + images (SuperAdmin)
+│   │   ├── AdminOrdersController.cs      # Orders overview, shipping, return approval
+│   │   ├── AdminCustomersController.cs   # Customer block/unblock/delete/restore
+│   │   ├── AdminVendorsController.cs     # Vendor activate/deactivate (SuperAdmin)
+│   │   ├── AdminFeedbackController.cs    # Feedback moderation
+│   │   ├── CartController.cs             # Shopping cart (Customer)
+│   │   ├── OrdersController.cs           # Place, cancel, return orders (Customer)
+│   │   ├── CustomerProductsController.cs # Browse products (Public)
+│   │   ├── CustomerProfileController.cs  # Profile & avatar (Customer)
+│   │   ├── AddressController.cs          # Address CRUD + set-default (Customer)
+│   │   ├── ProductFeedbackController.cs  # Product reviews (Customer)
+│   │   ├── VendorProductsController.cs   # Full product + image CRUD (Vendor)
+│   │   ├── VendorProfileController.cs    # Store & personal profile (Vendor)
+│   │   └── RepresentativeOrderController.cs # Return request processing (Representative)
 │   ├── 📁 Middlewares/                   # Global exception handler
 │   └── Program.cs                        # App configuration & DI
 │
 ├── 📁 E-Commerce.Application/           # Application Layer (Use Cases)
 │   ├── 📁 Behaviors/                    # MediatR pipeline behaviors
-│   │   ├── LoggingBehavior.cs           # Request/response logging
-│   │   └── ValidateBehavior.cs          # FluentValidation pipeline
+│   │   ├── LoggingBehavior.cs
+│   │   └── ValidateBehavior.cs
 │   ├── 📁 Features/                     # CQRS feature slices
-│   │   ├── 📁 Auth/                     # Login, Register commands
-│   │   ├── 📁 Products/                 # Product queries & commands
-│   │   ├── 📁 Categories/              # Category queries & commands
-│   │   ├── 📁 Orders/                   # Order queries & commands
-│   │   ├── 📁 Carts/                    # Cart queries & commands
-│   │   ├── 📁 Feedbacks/               # Feedback queries & commands
-│   │   ├── 📁 Vendors/                  # Vendor queries & commands
-│   │   └── 📁 Users/                    # User profile management
-│   └── 📁 Interfaces/                   # Abstractions & contracts
-│       ├── 📁 Repositories/             # Repository interfaces
-│       ├── 📁 Services/                 # Service interfaces
-│       └── 📁 Data/                     # DbContext interface
+│   │   ├── 📁 Auth/
+│   │   ├── 📁 Products/ & ProductImages/
+│   │   ├── 📁 Categories/
+│   │   ├── 📁 Orders/
+│   │   ├── 📁 Carts/
+│   │   ├── 📁 Feedbacks/
+│   │   ├── 📁 Vendors/
+│   │   ├── 📁 Addresses/
+│   │   └── 📁 Users/
+│   └── 📁 Interfaces/
+│       ├── 📁 Repositories/
+│       ├── 📁 Services/                 # IUserContext, ITokenService, etc.
+│       └── 📁 Data/
 │
-├── 📁 E-Commerce.Infrastructure/        # Infrastructure Layer
+├── 📁 E-Commerce.Infrastructure/
 │   ├── 📁 Data/
-│   │   ├── AppDbContext.cs              # EF Core DbContext
-│   │   ├── DbInitializer.cs             # Seed data
-│   │   ├── UnitOfWork.cs                # Unit of Work pattern
-│   │   ├── 📁 Configs/                  # Entity type configurations
-│   │   ├── 📁 Interceptors/             # Soft-delete interceptor
-│   │   └── 📁 Repositories/             # Repository implementations
-│   ├── 📁 Services/                     # External service integrations
-│   │   ├── CloudinaryService.cs         # Image upload service
-│   │   ├── TokenService.cs              # JWT token generation
-│   │   ├── UserContext.cs               # Current user resolver
-│   │   └── 📁 Payments/                 # Payment processing
-│   ├── 📁 BackgroundJobs/               # Hosted services
-│   └── 📁 Migrations/                   # EF Core migrations
+│   │   ├── AppDbContext.cs
+│   │   ├── DbInitializer.cs             # Seeds roles, users, vendor profiles & addresses
+│   │   ├── UnitOfWork.cs
+│   │   ├── 📁 Configs/
+│   │   ├── 📁 Interceptors/             # SoftDeleteInterceptor
+│   │   └── 📁 Repositories/
+│   ├── 📁 Services/
+│   │   ├── CloudinaryService.cs
+│   │   ├── TokenService.cs              # JWT + vendor_id claim
+│   │   ├── UserContext.cs               # Resolves UserId, VendorId, roles from JWT
+│   │   └── 📁 Payments/
+│   ├── 📁 BackgroundJobs/
+│   └── 📁 Migrations/
 │
-├── 📁 E-Commerce.Domain/               # Domain Layer (Core)
-│   ├── 📁 Entities/                     # Domain entities
-│   │   ├── ApplicationUser.cs           # User aggregate root
-│   │   ├── Product.cs                   # Product entity
-│   │   ├── Order.cs                     # Order aggregate root
-│   │   ├── Category.cs                  # Category entity
-│   │   ├── Cart.cs / CartItem.cs        # Shopping cart
-│   │   ├── Payment.cs                   # Payment entity
-│   │   ├── Feedback.cs                  # Product review
-│   │   ├── ReturnRequest.cs             # Return request
-│   │   ├── Refund.cs                    # Refund entity
-│   │   └── Vendor.cs                    # Vendor profile
-│   ├── 📁 Enums/                        # Domain enumerations
-│   ├── 📁 Errors/                       # Typed domain errors
-│   ├── 📁 Common/                       # Soft-delete base classes
-│   └── 📁 Shared/                       # Result pattern & roles
+├── 📁 E-Commerce.Domain/
+│   ├── 📁 Entities/
+│   │   ├── ApplicationUser.cs
+│   │   ├── Product.cs, ProductImage.cs
+│   │   ├── Order.cs, OrderItem.cs, Cancellation.cs
+│   │   ├── Cart.cs, CartItem.cs
+│   │   ├── Payment.cs, Refund.cs, ReturnRequest.cs
+│   │   ├── Feedback.cs
+│   │   ├── Address.cs
+│   │   ├── Category.cs
+│   │   └── Vendor.cs
+│   ├── 📁 Enums/                        # OrderStatus, PaymentMethod, AddressType, etc.
+│   ├── 📁 Errors/
+│   ├── 📁 Common/                       # SoftDeletable base
+│   └── 📁 Shared/                       # Result<T>, AppRoles
 │
-└── E-Commerce.slnx                      # Solution file
+└── E-Commerce.slnx
 ```
 
 <br/>
@@ -275,48 +278,144 @@ E-Commerce/
 ### 🔐 Authentication
 | Method | Endpoint | Description | Auth |
 |:------:|:---------|:------------|:----:|
-| `POST` | `/api/auth/register` | Register a new user | ❌ |
-| `POST` | `/api/auth/login` | Login & get JWT token | ❌ |
+| `POST` | `/api/Auth/register-customer` | Register a new customer | ❌ |
+| `POST` | `/api/Auth/register-vendor` | Register a new vendor | ❌ |
+| `POST` | `/api/Auth/register` | Register admin/representative | 🔒 SuperAdmin |
+| `POST` | `/api/Auth/login` | Login & receive JWT + refresh token | ❌ |
+| `POST` | `/api/Auth/refresh-token` | Rotate access token | ❌ |
 
-### 📦 Products
+### 🛍️ Customer — Products
 | Method | Endpoint | Description | Auth |
 |:------:|:---------|:------------|:----:|
-| `GET` | `/api/products` | Browse products (customer) | ❌ |
-| `GET` | `/api/vendor/products` | List vendor's products | 🔒 Vendor |
-| `POST` | `/api/vendor/products` | Create a product | 🔒 Vendor |
-| `PUT` | `/api/vendor/products/{id}` | Update a product | 🔒 Vendor |
-| `DELETE` | `/api/vendor/products/{id}` | Delete a product | 🔒 Vendor |
-| `POST` | `/api/vendor/products/{id}/images` | Upload product images | 🔒 Vendor |
+| `GET` | `/api/customer/products` | Browse products (offset pagination) | ❌ |
+| `GET` | `/api/customer/products/{id}` | Get product details | ❌ |
 
-### 🗂️ Categories (Admin)
+### 📦 Vendor — Products & Images
 | Method | Endpoint | Description | Auth |
 |:------:|:---------|:------------|:----:|
-| `GET` | `/api/admin/categories` | List all categories | 🔒 Admin |
-| `POST` | `/api/admin/categories` | Create a category | 🔒 Admin |
-| `PUT` | `/api/admin/categories/{id}` | Update a category | 🔒 Admin |
-| `DELETE` | `/api/admin/categories/{id}` | Delete a category | 🔒 Admin |
-| `PATCH` | `/api/admin/categories/{id}/restore` | Restore deleted category | 🔒 Admin |
+| `GET` | `/api/vendor/products` | List own products | 🔒 Vendor |
+| `GET` | `/api/vendor/products/archived` | List archived products | 🔒 Vendor |
+| `GET` | `/api/vendor/products/{id}` | Get product detail | 🔒 Vendor |
+| `POST` | `/api/vendor/products` | Create product | 🔒 Vendor |
+| `PUT` | `/api/vendor/products/{id}` | Update product | 🔒 Vendor |
+| `DELETE` | `/api/vendor/products/{id}` | Archive product | 🔒 Vendor |
+| `PATCH` | `/api/vendor/products/{id}/restore` | Restore archived product | 🔒 Vendor |
+| `POST` | `/api/vendor/products/{id}/images` | Upload images | 🔒 Vendor |
+| `GET` | `/api/vendor/products/{id}/images` | List product images | 🔒 Vendor |
+| `GET` | `/api/vendor/products/{id}/images/{imgId}` | Get image detail | 🔒 Vendor |
+| `PUT` | `/api/vendor/products/{id}/images/{imgId}` | Replace image | 🔒 Vendor |
+| `PUT` | `/api/vendor/products/{id}/images/reorder` | Reorder images | 🔒 Vendor |
+| `PUT` | `/api/vendor/products/{id}/images/{imgId}/set-primary` | Set primary image | 🔒 Vendor |
+| `DELETE` | `/api/vendor/products/{id}/images/{imgId}` | Delete image | 🔒 Vendor |
+| `DELETE` | `/api/vendor/products/{id}/images` | Clear all images | 🔒 Vendor |
+
+### 👤 Vendor — Profile
+| Method | Endpoint | Description | Auth |
+|:------:|:---------|:------------|:----:|
+| `GET` | `/api/vendor/profile` | Get own vendor profile | 🔒 Vendor |
+| `PUT` | `/api/vendor/profile/store` | Update store info | 🔒 Vendor |
+| `PUT` | `/api/vendor/profile/personal` | Update personal info | 🔒 Vendor |
+| `PUT` | `/api/vendor/profile/image` | Update profile avatar | 🔒 Vendor |
+
+### 👤 Customer — Profile & Address
+| Method | Endpoint | Description | Auth |
+|:------:|:---------|:------------|:----:|
+| `GET` | `/api/customer/profile` | Get own profile | 🔒 Customer |
+| `PUT` | `/api/customer/profile` | Update personal info | 🔒 Customer |
+| `PUT` | `/api/customer/profile/image` | Update profile avatar | 🔒 Customer |
+| `GET` | `/api/addresses` | List addresses | 🔒 Customer |
+| `GET` | `/api/addresses/{id}` | Get address detail | 🔒 Customer |
+| `POST` | `/api/addresses` | Add addresses | 🔒 Customer |
+| `PUT` | `/api/addresses/{id}` | Update address | 🔒 Customer |
+| `PATCH` | `/api/addresses/{id}/set-default` | Set default shipping address | 🔒 Customer |
+| `DELETE` | `/api/addresses/{id}` | Delete address | 🔒 Customer |
 
 ### 🛒 Cart & Orders
 | Method | Endpoint | Description | Auth |
 |:------:|:---------|:------------|:----:|
 | `GET` | `/api/cart` | View cart | 🔒 Customer |
-| `POST` | `/api/cart/items` | Add item to cart | 🔒 Customer |
-| `DELETE` | `/api/cart/items/{id}` | Remove cart item | 🔒 Customer |
+| `POST` | `/api/cart/items/{productId}` | Add item | 🔒 Customer |
+| `PUT` | `/api/cart/items/{productId}` | Update item quantity | 🔒 Customer |
+| `DELETE` | `/api/cart/items/{productId}` | Remove item | 🔒 Customer |
+| `DELETE` | `/api/cart` | Clear cart | 🔒 Customer |
 | `POST` | `/api/orders` | Place an order | 🔒 Customer |
-| `GET` | `/api/orders` | List customer orders | 🔒 Customer |
-| `POST` | `/api/orders/{id}/cancel` | Cancel an order | 🔒 Customer |
-| `POST` | `/api/orders/{id}/return` | Request a return | 🔒 Customer |
+| `GET` | `/api/orders` | List my orders | 🔒 Customer |
+| `GET` | `/api/orders/{id}` | Order details | 🔒 Customer |
+| `POST` | `/api/orders/{id}/cancel` | Cancel order | 🔒 Customer |
+| `POST` | `/api/orders/{id}/return-request` | Request a return | 🔒 Customer |
 
 ### ⭐ Feedback
 | Method | Endpoint | Description | Auth |
 |:------:|:---------|:------------|:----:|
-| `GET` | `/api/products/{id}/feedbacks` | View product reviews | ❌ |
+| `GET` | `/api/products/{id}/feedbacks` | Browse product reviews | ❌ |
 | `POST` | `/api/products/{id}/feedbacks` | Submit a review | 🔒 Customer |
 | `PUT` | `/api/feedbacks/{id}` | Edit own review | 🔒 Customer |
 | `DELETE` | `/api/feedbacks/{id}` | Delete own review | 🔒 Customer |
-| `GET` | `/api/admin/feedbacks/pending` | View pending reviews | 🔒 Admin |
-| `PATCH` | `/api/admin/feedbacks/{id}/approve` | Approve a review | 🔒 Admin |
+
+### 🚚 Representative
+| Method | Endpoint | Description | Auth |
+|:------:|:---------|:------------|:----:|
+| `GET` | `/api/representative/returns/approved` | List approved return requests | 🔒 Representative / SuperAdmin |
+| `POST` | `/api/representative/status/{returnReqId}` | Complete or reject a return | 🔒 Representative / SuperAdmin |
+
+### 🛠️ Admin — Categories
+| Method | Endpoint | Description | Auth |
+|:------:|:---------|:------------|:----:|
+| `GET` | `/api/admin/categories` | List active categories | 🔒 SuperAdmin |
+| `GET` | `/api/admin/categories/deleted` | List deleted categories | 🔒 SuperAdmin |
+| `GET` | `/api/admin/categories/{id}` | Category detail | 🔒 SuperAdmin |
+| `GET` | `/api/admin/categories/{id}/deleted` | Deleted category detail | 🔒 SuperAdmin |
+| `POST` | `/api/admin/categories` | Create category | 🔒 SuperAdmin |
+| `PUT` | `/api/admin/categories/{id}` | Update category | 🔒 SuperAdmin |
+| `PATCH` | `/api/admin/categories/{id}/restore` | Restore category | 🔒 SuperAdmin |
+| `DELETE` | `/api/admin/categories/{id}` | Delete category | 🔒 SuperAdmin |
+
+### 🛠️ Admin — Products
+| Method | Endpoint | Description | Auth |
+|:------:|:---------|:------------|:----:|
+| `GET` | `/api/admin/products` | List available products | 🔒 SuperAdmin |
+| `GET` | `/api/admin/products/archived` | List archived products | 🔒 SuperAdmin |
+| `GET` | `/api/admin/products/suspended` | List suspended products | 🔒 SuperAdmin |
+| `GET` | `/api/admin/products/{id}/available` | Product detail | 🔒 SuperAdmin |
+| `GET` | `/api/admin/products/{id}/archived` | Archived product detail | 🔒 SuperAdmin |
+| `GET` | `/api/admin/products/{id}/suspend` | Suspended product detail | 🔒 SuperAdmin |
+| `DELETE` | `/api/admin/products/{id}` | Suspend product | 🔒 SuperAdmin |
+| `PATCH` | `/api/admin/products/{id}/unsuspend` | Unsuspend product | 🔒 SuperAdmin |
+| `GET` | `/api/admin/products/{id}/images` | Product images | 🔒 SuperAdmin |
+| `DELETE` | `/api/admin/products/{id}/images/{imgId}` | Remove inappropriate image | 🔒 SuperAdmin |
+| `DELETE` | `/api/admin/products/{id}/images` | Clear all product images | 🔒 SuperAdmin |
+
+### 🛠️ Admin — Orders
+| Method | Endpoint | Description | Auth |
+|:------:|:---------|:------------|:----:|
+| `GET` | `/api/admin/orders/processing` | Processing orders for a day | 🔒 Admin / SuperAdmin |
+| `GET` | `/api/admin/orders/overview` | Revenue & order overview | 🔒 Admin / SuperAdmin |
+| `PATCH` | `/api/admin/orders/{id}/shipped` | Mark order as shipped | 🔒 Admin / SuperAdmin |
+| `POST` | `/api/admin/orders/{returnReqId}/accept-reject-return-req` | Approve/reject return request | 🔒 Admin / SuperAdmin |
+
+### 🛠️ Admin — Customers
+| Method | Endpoint | Description | Auth |
+|:------:|:---------|:------------|:----:|
+| `GET` | `/api/admin/customers` | List customers | 🔒 SuperAdmin |
+| `GET` | `/api/admin/customers/{id}` | Customer detail | 🔒 SuperAdmin |
+| `PATCH` | `/api/admin/customers/{id}/block` | Block customer | 🔒 SuperAdmin |
+| `PATCH` | `/api/admin/customers/{id}/unblock` | Unblock customer | 🔒 SuperAdmin |
+| `DELETE` | `/api/admin/customers/{id}` | Delete customer | 🔒 SuperAdmin |
+| `PATCH` | `/api/admin/customers/{id}/restore` | Restore customer | 🔒 SuperAdmin |
+
+### 🛠️ Admin — Vendors
+| Method | Endpoint | Description | Auth |
+|:------:|:---------|:------------|:----:|
+| `GET` | `/api/admin/vendors` | List vendors | 🔒 SuperAdmin |
+| `GET` | `/api/admin/vendors/{id}` | Vendor detail | 🔒 SuperAdmin |
+| `PATCH` | `/api/admin/vendors/{id}/active` | Activate vendor | 🔒 SuperAdmin |
+| `PATCH` | `/api/admin/vendors/{id}/deactive` | Deactivate vendor | 🔒 SuperAdmin |
+
+### 🛠️ Admin — Feedback
+| Method | Endpoint | Description | Auth |
+|:------:|:---------|:------------|:----:|
+| `GET` | `/api/admin/feedbacks/pending` | Pending reviews queue | 🔒 SuperAdmin |
+| `PATCH` | `/api/admin/feedbacks/{id}/approve` | Approve review | 🔒 SuperAdmin |
 
 <br/>
 
@@ -354,7 +453,7 @@ Create an `appsettings.Development.json` file in the `E-Commerce.API` directory:
     "SecretKey": "your-super-secret-key-at-least-32-characters-long",
     "Issuer": "E-Commerce.API",
     "Audience": "E-Commerce.Client",
-    "ExpirationInMinutes": 60
+    "AccessTokenExpirationInMinutes": 60
   },
   "CloudinarySettings": {
     "CloudName": "your-cloud-name",
@@ -363,37 +462,35 @@ Create an `appsettings.Development.json` file in the `E-Commerce.API` directory:
   },
   "RedisSettings": {
     "ConnectionString": "localhost:6379"
-  }
+  },
+  "AllowOrigins": ["http://localhost:3000"]
 }
 ```
 
-### 3️⃣ Apply Migrations & Seed Data
-
-```bash
-dotnet ef database update --project E-Commerce.Infrastructure --startup-project E-Commerce.API
-```
-
-### 4️⃣ Run the Application
+### 3️⃣ Run the Application
 
 ```bash
 dotnet run --project E-Commerce.API
 ```
 
-The API will be available at `https://localhost:5001` and the interactive API docs at:
+> Migrations are applied and the database is seeded automatically on startup via `DbInitializer.SeedAsync`.
+
+The interactive API docs are available at:
 
 ```
-https://localhost:5001/scalar/v1
+https://localhost:{port}/scalar/v1
 ```
 
 ### 🧪 Test Accounts
 
-The database is seeded with default accounts for testing. You can use these credentials to explore different role-based functionalities:
+The database is automatically seeded with the following accounts on first run:
 
-| Role | Email | Password |
-|:-----|:------|:---------|
-| **Super Admin** | `admin@ecommerce.com` | `Admin@123` |
-| **Vendor** | `vendor@ecommerce.com` | `Vendor@123` |
-| **Customer** | `customer@ecommerce.com` | `Customer@123` |
+| Role | Email | Password | Notes |
+|:-----|:------|:---------|:------|
+| **Super Admin** | `admin@ecommerce.com` | `Admin@123` | Full platform access |
+| **Vendor** | `vendor@ecommerce.com` | `Vendor@123` | Vendor profile + products pre-seeded |
+| **Customer** | `customer@ecommerce.com` | `Customer@123` | Default shipping address pre-seeded |
+| **Representative** | `rep@ecommerce.com` | `Rep@123` | Handles return request completion |
 
 <br/>
 
@@ -412,7 +509,7 @@ The database is seeded with default accounts for testing. You can use these cred
 | **Result Pattern** | Explicit success/failure handling instead of exceptions |
 | **Factory Pattern** | Payment method creation via `PaymentFactory` |
 | **Pipeline Behaviors** | Cross-cutting concerns (logging, validation) via MediatR |
-| **Soft Delete** | EF Core interceptor auto-sets `IsDeleted` flags |
+| **Soft Delete** | EF Core interceptor auto-sets `IsDeleted` flags with global query filters |
 | **Options Pattern** | Strongly-typed, validated configuration sections |
 | **Convention-Based DI** | Scrutor auto-registers services by interface markers |
 
@@ -424,11 +521,11 @@ The database is seeded with default accounts for testing. You can use these cred
 
 ## 🛡️ Security
 
-- 🔑 **JWT Bearer Authentication** with configurable expiration
-- 🔒 **Role-Based Authorization** policies per endpoint
-- 🧱 **Rate Limiting** — sliding window per IP and per user
-- 🔐 **Account Lockout** — auto-lock after 5 failed attempts
-- 🛡️ **CORS** — configurable allowed origins
+- 🔑 **JWT Bearer Authentication** with configurable expiration and refresh token rotation
+- 🔒 **Role-Based Authorization** policies per endpoint group
+- 🧱 **Rate Limiting** — sliding window per IP (auth) and per user (all other endpoints)
+- 🔐 **Account Lockout** — auto-lock after 5 failed login attempts (10-minute window)
+- 🛡️ **CORS** — configurable allowed origins via `appsettings.json`
 - 🔏 **Data Protection** — ASP.NET Core Data Protection API
 - 📝 **User Secrets** — sensitive config kept out of source control
 
