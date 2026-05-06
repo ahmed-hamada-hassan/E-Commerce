@@ -161,27 +161,27 @@ The solution strictly follows the **Clean Architecture** pattern with four indep
 
 ```
                     ┌──────────────────────────────────┐
-                    │          E-Commerce.API           │  ← Presentation Layer
-                    │  Controllers · Middlewares ·      │
-                    │  Contracts · Program.cs           │
+                    │          E-Commerce.API          │  ← Presentation Layer
+                    │  Controllers · Middlewares ·     │
+                    │  Contracts · Program.cs          │
                     └───────────────┬──────────────────┘
                                     │ depends on
                     ┌───────────────▼──────────────────┐
                     │      E-Commerce.Application      │  ← Application Layer
                     │  Features (CQRS) · Behaviors ·   │
-                    │  Interfaces · DTOs · Validators   │
+                    │  Interfaces · DTOs · Validators  │
                     └───────────────┬──────────────────┘
                                     │ depends on
                     ┌───────────────▼──────────────────┐
-                    │    E-Commerce.Infrastructure      │  ← Infrastructure Layer
-                    │  Data (EF Core) · Repositories ·  │
-                    │  Services · Migrations · Jobs     │
+                    │    E-Commerce.Infrastructure     │  ← Infrastructure Layer
+                    │  Data (EF Core) · Repositories · │
+                    │  Services · Migrations · Jobs    │
                     └───────────────┬──────────────────┘
                                     │ depends on
                     ┌───────────────▼──────────────────┐
-                    │        E-Commerce.Domain          │  ← Domain Layer (Core)
-                    │  Entities · Enums · Errors ·      │
-                    │  Shared (Result Pattern)          │
+                    │        E-Commerce.Domain         │  ← Domain Layer (Core)
+                    │  Entities · Enums · Errors ·     │
+                    │  Shared (Result Pattern)         │
                     └──────────────────────────────────┘
 ```
 
