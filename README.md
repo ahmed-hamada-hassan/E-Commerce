@@ -20,7 +20,7 @@
 <br/>
 
 ## 🔗 Quick Links
-| 🏛️ [Architecture](#🏛️-clean-architecture) | 🌐 [Live Environment](#🌐-live-environment) | 🔌 [API Endpoints](#🔌-api-endpoints) | 🚀 [Frontend Guide](#🚀-frontend-integration-guide) |
+| 🏛️ [Architecture](#clean-architecture) | 🌐 [Live Environment](#live-environment) | 🔌 [API Endpoints](#api-endpoints) | 🚀 [Frontend Guide](#frontend-integration-guide) |
 |:---:|:---:|:---:|:---:|
 
 ---
