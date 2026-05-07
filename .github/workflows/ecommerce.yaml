@@ -1,4 +1,4 @@
-name: .NET Core Build
+name: E-Commerce API CI
 
 on:
   push:
