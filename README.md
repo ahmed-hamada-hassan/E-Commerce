@@ -17,9 +17,24 @@
   <a href="https://github.com/ahmed-hamada-hassan/E-Commerce/commits/main"><img src="https://img.shields.io/github/last-commit/ahmed-hamada-hassan/E-Commerce?style=for-the-badge&color=2ecc71&labelColor=1a1b27&logo=git" alt="Last Commit" /></a>
 </p>
 
-<h3 align="center">
-  🌐 <strong>Live API Demo (Monster ASP.NET):</strong> <a href="http://my-ecommerce.runasp.net/scalar/v1">http://my-ecommerce.runasp.net/scalar/v1</a>
-</h3>
+<br/>
+
+## 🔗 Quick Links
+| 🏛️ [Architecture](#🏛️-clean-architecture) | 🌐 [Live Environment](#🌐-live-environment) | 🔌 [API Endpoints](#🔌-api-endpoints) | 🚀 [Frontend Guide](#🚀-frontend-integration-guide) |
+|:---:|:---:|:---:|:---:|
+
+---
+
+<br/>
+
+## 🌐 Live Environment
+
+<p align="left">
+  <img src="https://img.shields.io/badge/Hosted_on-Monster_ASP.NET-blue?style=for-the-badge&logo=microsoft" alt="Hosted on Monster ASP.NET" />
+</p>
+
+- **Live Base URL:** `https://site67484.siteasp.net` *(Replace `http://localhost:{port}` with this URL in frontend config)*
+- **API Documentation (Scalar/Swagger):** [https://site67484.siteasp.net/scalar/v1](https://site67484.siteasp.net/scalar/v1)
 
 <br/>
 
@@ -73,6 +88,16 @@
     </td>
   </tr>
 </table>
+
+<br/>
+
+### 🏢 Infrastructure
+
+| Component | Role in Project |
+|:----------|:----------------|
+| **SQL Server** | Primary relational database storing all domain entities (Products, Users, Orders, etc.). |
+| **Redis** | Distributed cache for performance optimization and sliding-window rate limiting. |
+| **Cloudinary** | Cloud storage provider for managing and serving product images and user avatars. |
 
 <br/>
 
@@ -421,6 +446,65 @@ E-Commerce/
 |:------:|:---------|:------------|:----:|
 | `GET` | `/api/admin/feedbacks/pending` | Pending reviews queue | 🔒 SuperAdmin |
 | `PATCH` | `/api/admin/feedbacks/{id}/approve` | Approve review | 🔒 SuperAdmin |
+
+<br/>
+
+---
+
+<br/>
+
+## 🚀 Frontend Integration Guide
+
+This API uses standardized patterns designed to streamline frontend integration. Please refer to the guidelines below before starting.
+
+### 1. Using the OpenAPI Specification
+An `openapi.yaml` file is provided in the repository root containing all major endpoints and schemas.
+**To import into Postman/Insomnia:**
+1. Download or clone this repository.
+2. Open Postman, click **Import**, and select the `openapi.yaml` file.
+3. All collections, endpoints, and request/response models will be generated automatically.
+
+### 2. The Result Pattern
+Every API response (success or failure) is wrapped in a consistent `Result<T>` structure. This guarantees a predictable shape for your HTTP clients (like Axios or Fetch).
+
+**Structure:**
+```json
+{
+  "isSuccess": true,
+  "isFailure": false,
+  "error": {
+    "code": "Error.None",
+    "message": "No error occurred"
+  },
+  "value": { ... } // Your requested data goes here
+}
+```
+**Handling Errors:**
+If an error occurs (e.g., validation failed, entity not found), `isSuccess` will be `false`, and the `error` object will contain a specific `code` and `message` to display to the user.
+
+### 3. Authentication Flow (JWT)
+The API uses JWT Bearer tokens for authentication and short-lived access tokens with long-lived refresh tokens.
+1. **Login:** Call `/api/Auth/login` to receive an `accessToken` and a `refreshToken`.
+2. **Authorized Requests:** Attach the `accessToken` in the `Authorization` header: `Bearer <your_token>`.
+3. **Refresh:** When the `accessToken` expires (returns 401 Unauthorized), call `/api/Auth/refresh-token` using your `refreshToken` to obtain a new pair.
+
+<br/>
+
+---
+
+<br/>
+
+## 🔐 Environment Variables
+
+The live production environment on Monster ASP.NET relies on the following key environment configurations. (Note: Actual values are kept secure via Secrets/Azure Key Vault).
+
+| Variable Area | Purpose |
+|:--------------|:--------|
+| **ConnectionStrings:DefaultConnection** | Points to the live SQL Server database. |
+| **RedisSettings:ConnectionString** | Points to the live Redis instance for caching. |
+| **JWT:SecretKey** | High-entropy key used to sign all JWT access tokens. |
+| **JWT:Issuer & Audience** | Validates the token source and intended consumer. |
+| **CloudinarySettings** | Contains `CloudName`, `ApiKey`, and `ApiSecret` for image uploads. |
 
 <br/>
 
