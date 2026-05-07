@@ -67,7 +67,10 @@ internal sealed class LoginCommandHandler : IRequestHandler<LoginCommand, Result
             if(vendor is not null)
             {
                 if(!vendor.IsActive)
+                {
+                    _logger.LogWarning("INACTIVE VENDOR LOGIN ATTEMPT: UserID: {UserId}, Email: {Email}", user.Id, user.Email);
                     return Result<AuthResponse>.Failure(ApplicationUserErrors.InvalidCredentails);
+                }
 
                 vendorId = vendor.Id;
             }

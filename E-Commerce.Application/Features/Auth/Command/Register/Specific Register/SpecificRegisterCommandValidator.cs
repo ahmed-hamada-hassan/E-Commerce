@@ -34,7 +34,7 @@ internal sealed class SpecificRegisterCommandValidator : AbstractValidator<Speci
 
         RuleFor(U => U.PhoneNumber)
             .NotEmpty().WithMessage("Phone number is required.")
-            .Matches(@"^\+?[1-9]\d{1,14}$").WithMessage("Invalid phone number format.");
+            .Matches(@"^\+?[0-9]\d{1,14}$").WithMessage("Invalid phone number format eg(01234567890).");
 
         RuleFor(u => u.Password)
             .NotEmpty().WithMessage("Password is required.")

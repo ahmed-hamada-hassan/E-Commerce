@@ -66,11 +66,11 @@ internal sealed class AdminGetVendorsQueryHandler : IRequestHandler<AdminGetVend
                 x.User.DateOfBirth,
                 x.User.IsDeleted || x.Vendor.IsDeleted,
                 x.User.DeleteOn,
-                x.User.LockoutEnabled,
+                !x.User.LockoutEnabled,
                 x.User.LockoutEnd,
                 (x.User.IsDeleted || x.Vendor.IsDeleted) ? "Deleted" :
                 (x.User.LockoutEnd != null && x.User.LockoutEnd > DateTimeOffset.UtcNow) ? "Blocked" :
-                (!x.Vendor.IsActive) ? "PendingApproval" : "Active"
+                (!x.Vendor.IsActive) ? "Pending Approval" : "Active"
             )).ToListAsync(cancellationToken);
 
         bool hasMoreData = resultList.Count == itemsToFetch;

@@ -1,4 +1,4 @@
-﻿using E_Commerce.Application.Interfaces.Dependency_Injection;
+using E_Commerce.Application.Interfaces.Dependency_Injection;
 using E_Commerce.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;

@@ -1,5 +1,6 @@
 ﻿namespace E_Commerce.Application.Features.Users.DTOs;
-public record CustomerProfileResponse(
+
+public record AdminCustomerProfileResponse(
     Guid UserId,
     string Name,
     string UserName,
@@ -8,4 +9,4 @@ public record CustomerProfileResponse(
     string? ImageUrl,
     DateOnly DateOfBirth,
     Guid? DefaultShippingAddressId,
-    IReadOnlyList<CustomerAddressInfo> Addresses);
+    IReadOnlyList<AdminCustomerAddressInfo> Addresses);

@@ -15,7 +15,7 @@ public static class CategoryMappingExtensions
 
     public static UpdateCategoryCommand ToUpdateCategoryCommand(this UpdateCategoryRequest request, Guid Id)
     {
-        return new UpdateCategoryCommand(Id, request.Name,
+        return new UpdateCategoryCommand(Id, string.IsNullOrWhiteSpace(request.Name) ? null : request.Name,
             string.IsNullOrWhiteSpace(request.Description) ? null : request.Description, request.ParentId, request.Image);
     }
 }

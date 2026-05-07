@@ -1,4 +1,4 @@
-﻿using E_Commerce.Domain.Entities;
+using E_Commerce.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -32,6 +32,14 @@ public class ApplicationUserConfiguration : IEntityTypeConfiguration<Application
             .HasForeignKey(u => u.DefaultShippingAddressId)
             .IsRequired(false)
             .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasMany(u => u.Addresses)
+            .WithOne(a => a.User)
+            .HasForeignKey(a => a.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        //builder.Navigation(u => u.Addresses)
+        //    .UsePropertyAccessMode(PropertyAccessMode.Field);
 
         //builder.HasOne(u => u.Cart)
         //    .WithOne(c => c.User)

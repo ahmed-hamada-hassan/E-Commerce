@@ -1,7 +1,8 @@
 ﻿using E_Commerce.Domain.Enums;
 
 namespace E_Commerce.Application.Features.Users.DTOs;
-public record CustomerAddressInfo(
+
+public record AdminCustomerAddressInfo(
     Guid AddressId, 
     string AddressLine1, 
     string? AddressLine2, 
@@ -9,4 +10,5 @@ public record CustomerAddressInfo(
     string? StateOrProvince, 
     string Country, 
     string PostalCode,
-    AddressType AddressType);
+    AddressType AddressType,
+    string Status);

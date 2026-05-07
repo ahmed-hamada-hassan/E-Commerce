@@ -198,17 +198,17 @@ E-Commerce/
 │   │   ├── AdminCategoriesController.cs  # Category CRUD + restore (SuperAdmin)
 │   │   ├── AdminProductsController.cs    # Product suspend/unsuspend + images (SuperAdmin)
 │   │   ├── AdminOrdersController.cs      # Orders overview, shipping, return approval
-│   │   ├── AdminCustomersController.cs   # Customer block/unblock/delete/restore
+│   │   ├── AdminUsersController.cs       # User block/unblock/delete/restore
 │   │   ├── AdminVendorsController.cs     # Vendor activate/deactivate (SuperAdmin)
 │   │   ├── AdminFeedbackController.cs    # Feedback moderation
 │   │   ├── CartController.cs             # Shopping cart (Customer)
 │   │   ├── OrdersController.cs           # Place, cancel, return orders (Customer)
 │   │   ├── CustomerProductsController.cs # Browse products (Public)
-│   │   ├── CustomerProfileController.cs  # Profile & avatar (Customer)
+│   │   ├── CustomerProfileController.cs  # User profile & avatar
 │   │   ├── AddressController.cs          # Address CRUD + set-default (Customer)
 │   │   ├── ProductFeedbackController.cs  # Product reviews (Customer)
 │   │   ├── VendorProductsController.cs   # Full product + image CRUD (Vendor)
-│   │   ├── VendorProfileController.cs    # Store & personal profile (Vendor)
+│   │   ├── VendorStoreProfileController.cs # Store profile (Vendor)
 │   │   └── RepresentativeOrderController.cs # Return request processing (Representative)
 │   ├── 📁 Middlewares/                   # Global exception handler
 │   └── Program.cs                        # App configuration & DI
@@ -309,20 +309,21 @@ E-Commerce/
 | `DELETE` | `/api/vendor/products/{id}/images/{imgId}` | Delete image | 🔒 Vendor |
 | `DELETE` | `/api/vendor/products/{id}/images` | Clear all images | 🔒 Vendor |
 
-### 👤 Vendor — Profile
+### 👤 User — Profile (Customer & Vendor)
 | Method | Endpoint | Description | Auth |
 |:------:|:---------|:------------|:----:|
-| `GET` | `/api/vendor/profile` | Get own vendor profile | 🔒 Vendor |
-| `PUT` | `/api/vendor/profile/store` | Update store info | 🔒 Vendor |
-| `PUT` | `/api/vendor/profile/personal` | Update personal info | 🔒 Vendor |
-| `PUT` | `/api/vendor/profile/image` | Update profile avatar | 🔒 Vendor |
+| `GET` | `/api/user/profile` | Get own profile | 🔒 Authenticated |
+| `PUT` | `/api/user/profile` | Update personal info | 🔒 Authenticated |
+| `PUT` | `/api/user/profile/image` | Update profile avatar | 🔒 Authenticated |
 
-### 👤 Customer — Profile & Address
+### 🏪 Vendor — Store Profile
 | Method | Endpoint | Description | Auth |
 |:------:|:---------|:------------|:----:|
-| `GET` | `/api/customer/profile` | Get own profile | 🔒 Customer |
-| `PUT` | `/api/customer/profile` | Update personal info | 🔒 Customer |
-| `PUT` | `/api/customer/profile/image` | Update profile avatar | 🔒 Customer |
+| `PUT` | `/api/vendor/store/profile` | Update store info | 🔒 Vendor |
+
+### 📍 Customer — Address
+| Method | Endpoint | Description | Auth |
+|:------:|:---------|:------------|:----:|
 | `GET` | `/api/addresses` | List addresses | 🔒 Customer |
 | `GET` | `/api/addresses/{id}` | Get address detail | 🔒 Customer |
 | `POST` | `/api/addresses` | Add addresses | 🔒 Customer |
@@ -393,15 +394,15 @@ E-Commerce/
 | `PATCH` | `/api/admin/orders/{id}/shipped` | Mark order as shipped | 🔒 Admin / SuperAdmin |
 | `POST` | `/api/admin/orders/{returnReqId}/accept-reject-return-req` | Approve/reject return request | 🔒 Admin / SuperAdmin |
 
-### 🛠️ Admin — Customers
+### 🛠️ Admin — Users
 | Method | Endpoint | Description | Auth |
 |:------:|:---------|:------------|:----:|
-| `GET` | `/api/admin/customers` | List customers | 🔒 SuperAdmin |
-| `GET` | `/api/admin/customers/{id}` | Customer detail | 🔒 SuperAdmin |
-| `PATCH` | `/api/admin/customers/{id}/block` | Block customer | 🔒 SuperAdmin |
-| `PATCH` | `/api/admin/customers/{id}/unblock` | Unblock customer | 🔒 SuperAdmin |
-| `DELETE` | `/api/admin/customers/{id}` | Delete customer | 🔒 SuperAdmin |
-| `PATCH` | `/api/admin/customers/{id}/restore` | Restore customer | 🔒 SuperAdmin |
+| `GET` | `/api/users` | List users | 🔒 SuperAdmin |
+| `GET` | `/api/users/{id}` | User detail | 🔒 SuperAdmin |
+| `PATCH` | `/api/users/{id}/block` | Block user | 🔒 SuperAdmin |
+| `PATCH` | `/api/users/{id}/unblock` | Unblock user | 🔒 SuperAdmin |
+| `DELETE` | `/api/users/{id}` | Delete user | 🔒 SuperAdmin |
+| `PATCH` | `/api/users/{id}/restore` | Restore user | 🔒 SuperAdmin |
 
 ### 🛠️ Admin — Vendors
 | Method | Endpoint | Description | Auth |

@@ -8,9 +8,10 @@ public record AdminCustomerResponse(
     string PhoneNumber,
     string? ImageUrl,
     DateOnly DateOfBirth,
+    Guid? DefaultShippingAddressId,
     bool IsDeleted,
     DateTimeOffset? DeletedAt,
-    bool IsLockout,
-    DateTimeOffset? LockoutEnd,
+    bool IsBlocked,
+    DateTimeOffset? BlockedAt,
     string Status,
-    List<CustomerAddressInfo> Addresses);
+    List<AdminCustomerAddressInfo> Addresses);

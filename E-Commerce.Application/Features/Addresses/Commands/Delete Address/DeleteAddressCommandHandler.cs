@@ -1,4 +1,4 @@
-﻿using E_Commerce.Application.Interfaces.Data;
+using E_Commerce.Application.Interfaces.Data;
 using E_Commerce.Domain.Entities;
 using E_Commerce.Domain.Errors;
 using E_Commerce.Domain.Shared;

@@ -13,21 +13,21 @@ using Microsoft.AspNetCore.RateLimiting;
 
 namespace E_Commerce.API.Controllers;
 
-[Route("api/admin/customers")]
+[Route("api/users")]
 [ApiController]
 [Authorize(policy: "SuperAdmin-Only")]
 [EnableRateLimiting("UserRateLimit")]
-public class AdminCustomersController : BaseApiController
+public class AdminUsersController : BaseApiController
 {
     private readonly IMediator _mediator;
 
-    public AdminCustomersController(IMediator mediator)
+    public AdminUsersController(IMediator mediator)
     {
         _mediator = mediator;
     }
 
     [HttpGet]
-    public async Task<ActionResult<CursorPagedResult<AdminCustomersResponse, Guid>>> GetCustomers(
+    public async Task<ActionResult<CursorPagedResult<AdminCustomersResponse, Guid>>> GetUsers(
         [FromQuery] CursorPaginationParams<Guid> paginationParams,
         [FromQuery] string? searchTerm,
         [FromQuery] string? status,
@@ -40,35 +40,35 @@ public class AdminCustomersController : BaseApiController
     }
 
     [HttpGet("{userId:guid}")]
-    public async Task<ActionResult<AdminCustomerResponse>> GetCustomer([FromRoute] Guid userId, CancellationToken ct)
+    public async Task<ActionResult<AdminCustomerResponse>> GetUser([FromRoute] Guid userId, CancellationToken ct)
     {
         var result = await _mediator.Send(new AdminGetCustomerQuery(userId), ct);
         return result.IsFailure ? HandleFailure(result) : Ok(result.Value);
     }
 
     [HttpPatch("{userId:guid}/block")]
-    public async Task<ActionResult> BlockCustomer([FromRoute] Guid userId, CancellationToken ct)
+    public async Task<ActionResult> BlockUser([FromRoute] Guid userId, CancellationToken ct)
     {
         var command = await _mediator.Send(new BlockUserCommand(userId), ct);
         return command.IsFailure ? HandleFailure(command) : NoContent();
     }
 
     [HttpPatch("{userId:guid}/unblock")]
-    public async Task<ActionResult> UnblockCustomer([FromRoute] Guid userId, CancellationToken ct)
+    public async Task<ActionResult> UnblockUser([FromRoute] Guid userId, CancellationToken ct)
     {
         var command = await _mediator.Send(new UnBlockUserCommand(userId), ct);
         return command.IsFailure ? HandleFailure(command) : NoContent();
     }
 
     [HttpDelete("{userId:guid}")]
-    public async Task<ActionResult> DeleteCustomer([FromRoute] Guid userId, CancellationToken ct)
+    public async Task<ActionResult> DeleteUser([FromRoute] Guid userId, CancellationToken ct)
     {
         var command = await _mediator.Send(new DeleteUserCommand(userId), ct);
         return command.IsFailure ? HandleFailure(command) : NoContent();
     }
 
     [HttpPatch("{userId:guid}/restore")]
-    public async Task<ActionResult> RestoreCustomer([FromRoute] Guid userId, CancellationToken ct)
+    public async Task<ActionResult> RestoreUser([FromRoute] Guid userId, CancellationToken ct)
     {
         var command = await _mediator.Send(new RestoreUserCommand(userId), ct);
         return command.IsFailure ? HandleFailure(command) : NoContent();

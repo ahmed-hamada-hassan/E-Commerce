@@ -1,4 +1,4 @@
-﻿using E_Commerce.Application.Interfaces.Data;
+using E_Commerce.Application.Interfaces.Data;
 
 namespace E_Commerce.Infrastructure.Data;
 

@@ -7,11 +7,12 @@ internal sealed class UpdateCategoryCommandValidator : AbstractValidator<UpdateC
     public UpdateCategoryCommandValidator()
     {
         RuleFor(c => c.Name)
-            .NotEmpty().WithMessage("Category Name is required.")
-            .MaximumLength(150).WithMessage("Category Name must not exceed 150 characters.");
+            .MaximumLength(150).WithMessage("Category Name must not exceed 150 characters.")
+            .When(c => !string.IsNullOrWhiteSpace(c.Name));
 
         RuleFor(c => c.Description)
-            .MaximumLength(1000).WithMessage("Category Description must not exceed 1000 characters.");
+            .MaximumLength(1000).WithMessage("Category Description must not exceed 1000 characters.")
+            .When(c => !string.IsNullOrWhiteSpace(c.Description));
 
         RuleFor(c => c.ParentId)
             .NotEqual(Guid.Empty)

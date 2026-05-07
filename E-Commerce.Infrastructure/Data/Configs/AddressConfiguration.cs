@@ -1,4 +1,4 @@
-﻿using E_Commerce.Domain.Entities;
+using E_Commerce.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -10,6 +10,7 @@ public class AddressConfiguration : IEntityTypeConfiguration<Address>
     {
         #region Properties
         builder.HasKey(a => a.Id);
+        builder.Property(a => a.Id).ValueGeneratedNever();
 
         builder.Property(a => a.AddressLine1)
             .IsRequired()

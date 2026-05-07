@@ -18,13 +18,7 @@ internal sealed class AdminGetCustomersQueryHandler :
 
     public async Task<Result<CursorPagedResult<AdminCustomersResponse, Guid>>> Handle(AdminGetCustomersQuery request, CancellationToken cancellationToken)
     {
-        var baseQuery = _dbContext.Users.IgnoreQueryFilters().AsNoTracking()
-            .Where(u => _dbContext.UserRoles
-                .Join(_dbContext.Roles,
-                    ur => ur.RoleId,
-                    role => role.Id,
-                    (ur, role) => new { ur.UserId, role.Name })
-                .Any(x => x.UserId == u.Id && x.Name == "Customer"));
+        var baseQuery = _dbContext.Users.IgnoreQueryFilters().AsNoTracking();
 
         if (!string.IsNullOrWhiteSpace(request.SearchTerm))
         {

@@ -9,15 +9,15 @@ using Microsoft.AspNetCore.RateLimiting;
 
 namespace E_Commerce.API.Controllers;
 
-[Route("api/customer/profile")]
+[Route("api/user/profile")]
 [ApiController]
-[Authorize(Policy = "Customer-Only")]
+[Authorize]
 [EnableRateLimiting("UserRateLimit")]
-public class CustomerProfileController : BaseApiController
+public class UserProfileController : BaseApiController
 {
     private readonly IMediator _mediator;
 
-    public CustomerProfileController(IMediator mediator)
+    public UserProfileController(IMediator mediator)
     {
         _mediator = mediator;
     }
@@ -37,9 +37,9 @@ public class CustomerProfileController : BaseApiController
     }
 
     [HttpPut("image")]
-    public async Task<ActionResult> UpdateMyProfileImage([FromForm] FormFile? image, CancellationToken ct)
+    public async Task<ActionResult> UpdateMyProfileImage([FromForm] CustomerImageRequest request, CancellationToken ct)
     {
-        var result = await _mediator.Send(new UpdateUserImageCommand(CurrentUserId, image), ct);
+        var result = await _mediator.Send(new UpdateUserImageCommand(CurrentUserId, request.Image), ct);
         return result.IsFailure ? HandleFailure(result) : NoContent();
     }
 }

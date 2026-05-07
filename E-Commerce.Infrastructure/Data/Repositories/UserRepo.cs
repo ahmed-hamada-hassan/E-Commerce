@@ -19,42 +19,4 @@ internal sealed class UserRepo : IUserRepository
         return _dbContext.Users.IgnoreQueryFilters().AsNoTracking()
             .FirstOrDefaultAsync(u => u.Id == id && u.IsDeleted, cancellationToken);
     }
-
-    public Task<ApplicationUser?> GetActiveCustomerWithAddressesAsync(Guid userId, CancellationToken cancellationToken = default)
-    {
-        if (userId == Guid.Empty)
-            return Task.FromResult<ApplicationUser?>(null);
-
-        return _dbContext.Users
-            .AsNoTracking()
-            .Include(u => u.Addresses)
-            .Where(u => u.Id == userId)
-            .Where(u => u.LockoutEnd == null || u.LockoutEnd <= DateTimeOffset.UtcNow)
-            .Where(u => _dbContext.UserRoles
-                .Join(_dbContext.Roles,
-                    ur => ur.RoleId,
-                    role => role.Id,
-                    (ur, role) => new { ur.UserId, role.Name })
-                .Any(x => x.UserId == u.Id && x.Name == "Customer"))
-            .FirstOrDefaultAsync(cancellationToken);
-    }
-
-    public Task<ApplicationUser?> GetCustomerForAdminByIdAsync(Guid userId, CancellationToken cancellationToken = default)
-    {
-        if (userId == Guid.Empty)
-            return Task.FromResult<ApplicationUser?>(null);
-
-        return _dbContext.Users
-            .IgnoreQueryFilters()
-            .AsNoTracking()
-            .Include(u => u.Addresses)
-            .Where(u => u.Id == userId)
-            .Where(u => _dbContext.UserRoles
-                .Join(_dbContext.Roles,
-                    ur => ur.RoleId,
-                    role => role.Id,
-                    (ur, role) => new { ur.UserId, role.Name })
-                .Any(x => x.UserId == u.Id && x.Name == "Customer"))
-            .FirstOrDefaultAsync(cancellationToken);
-    }
 }

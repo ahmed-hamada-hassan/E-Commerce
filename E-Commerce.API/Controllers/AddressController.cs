@@ -13,7 +13,7 @@ namespace E_Commerce.API.Controllers;
 
 [Route("api/addresses")]
 [ApiController]
-[Authorize(Policy = "Customer-Only")]
+[Authorize]
 [EnableRateLimiting("UserRateLimit")]
 public class AddressesController : BaseApiController
 {
@@ -39,7 +39,7 @@ public class AddressesController : BaseApiController
     }
 
     [HttpPost]
-    public async Task<ActionResult<List<Guid>>> AddAddresses([FromBody] List<AddAddressInfo> addresses, CancellationToken ct)
+    public async Task<ActionResult<List<AddAddressResponse>>> AddAddresses([FromBody] List<AddAddressInfo> addresses, CancellationToken ct)
     {
         var result = await _mediator.Send(new AddAddressCommand(CurrentUserId, addresses), ct);
         return result.IsFailure ? HandleFailure(result) : CreatedAtAction(nameof(GetMyAddresses), result.Value);

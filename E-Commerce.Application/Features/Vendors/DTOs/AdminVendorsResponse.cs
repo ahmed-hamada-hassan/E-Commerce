@@ -14,6 +14,6 @@ public record AdminVendorsResponse(
     DateOnly DateOfBirth,
     bool IsDeleted,
     DateTimeOffset? DeletedAt,
-    bool IsLockout,
-    DateTimeOffset? LockoutEnd,
+    bool IsBlocked,
+    DateTimeOffset? BlockedAt,
     string Status);

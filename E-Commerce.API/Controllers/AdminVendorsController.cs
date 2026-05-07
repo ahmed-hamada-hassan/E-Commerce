@@ -24,7 +24,7 @@ public class AdminVendorsController : BaseApiController
         _mediator = mediator;
     }
 
-    [HttpGet]
+    [HttpGet("{vendorId:guid}")]
     public async Task<ActionResult<AdminVendorResponse>> GetVendor([FromRoute] Guid vendorId, CancellationToken ct)
     {
         var result = await _mediator.Send(new AdminGetVendorQuery(vendorId), ct);

@@ -1,4 +1,5 @@
-﻿using E_Commerce.Application.Interfaces.Data;
+using E_Commerce.Application.Features.Addresses.DTOs;
+using E_Commerce.Application.Interfaces.Data;
 using E_Commerce.Domain.Entities;
 using E_Commerce.Domain.Errors;
 using E_Commerce.Domain.Shared;
@@ -9,20 +10,18 @@ using Microsoft.Extensions.Logging;
 
 namespace E_Commerce.Application.Features.Addresses.Commands;
 
-internal sealed class AddAddressCommandHandler : IRequestHandler<AddAddressCommand, Result<List<Guid>>>
+internal sealed class AddAddressCommandHandler : IRequestHandler<AddAddressCommand, Result<List<AddAddressResponse>>>
 {
     private readonly UserManager<ApplicationUser> _userManager;
-    private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<AddAddressCommandHandler> _logger;
 
-    public AddAddressCommandHandler(UserManager<ApplicationUser> userManager, IUnitOfWork unitOfWork, ILogger<AddAddressCommandHandler> logger)
+    public AddAddressCommandHandler(UserManager<ApplicationUser> userManager, ILogger<AddAddressCommandHandler> logger)
     {
         _userManager = userManager;
-        _unitOfWork = unitOfWork;
         _logger = logger;
     }
 
-    public async Task<Result<List<Guid>>> Handle(AddAddressCommand request, CancellationToken cancellationToken)
+    public async Task<Result<List<AddAddressResponse>>> Handle(AddAddressCommand request, CancellationToken cancellationToken)
     {
         var user = await _userManager.Users
             .Include(u => u.Addresses.Where(a => !a.IsDeleted))
@@ -31,12 +30,12 @@ internal sealed class AddAddressCommandHandler : IRequestHandler<AddAddressComma
         if (user is null)
         {
             _logger.LogWarning("User with ID {UserId} not found when attempting to add address.", request.UserId);
-            return Result<List<Guid>>.Failure(ApplicationUserErrors.NotFound);
+            return Result<List<AddAddressResponse>>.Failure(ApplicationUserErrors.NotFound);
         }
 
         var currentAddresses = user.Addresses.Count;
         var newAddressesCount = request.Addresses.Count;
-        var addressesIDs = new List<Guid>();
+        var response = new List<AddAddressResponse>();
         if((currentAddresses < 5 && currentAddresses >= 0) && (newAddressesCount <= 5 && newAddressesCount >= 1))
         {
             if (currentAddresses + newAddressesCount <= 5)
@@ -56,7 +55,7 @@ internal sealed class AddAddressCommandHandler : IRequestHandler<AddAddressComma
                     if (addressResult.IsFailure)
                     {
                         _logger.LogWarning("Failed to create address for user with ID {UserId}. Error: {Error}", request.UserId, addressResult.Error);
-                        return Result<List<Guid>>.Failure(addressResult.Error);
+                        return Result<List<AddAddressResponse>>.Failure(addressResult.Error);
                     }
                     var newAddress = addressResult.Value!;
                     user.AddAddress(newAddress);
@@ -64,17 +63,17 @@ internal sealed class AddAddressCommandHandler : IRequestHandler<AddAddressComma
                     if (user.DefaultShippingAddressId is null)
                         user.SetDefaultShippingAddress(newAddress.Id);
 
-                    addressesIDs.Add(newAddress.Id);
+                    response.Add(new AddAddressResponse(newAddress.Id));
                 }
             }
             else
             {
-                return Result<List<Guid>>.Failure(new Error("Address.LimitExceeded", "Maximum 5 addresses allowed."));
+                return Result<List<AddAddressResponse>>.Failure(new Error("Address.LimitExceeded", "Maximum 5 addresses allowed."));
             }
         }
 
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        await _userManager.UpdateAsync(user);
 
-        return Result<List<Guid>>.Success(addressesIDs);
+        return Result<List<AddAddressResponse>>.Success(response);
     }
 }

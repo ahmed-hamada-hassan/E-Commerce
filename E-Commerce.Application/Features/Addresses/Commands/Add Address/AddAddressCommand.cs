@@ -5,4 +5,4 @@ using MediatR;
 
 namespace E_Commerce.Application.Features.Addresses.Commands;
 
-public record AddAddressCommand(Guid UserId, List<AddAddressInfo> Addresses) : IRequest<Result<List<Guid>>>;
+public record AddAddressCommand(Guid UserId, List<AddAddressInfo> Addresses) : IRequest<Result<List<AddAddressResponse>>>;

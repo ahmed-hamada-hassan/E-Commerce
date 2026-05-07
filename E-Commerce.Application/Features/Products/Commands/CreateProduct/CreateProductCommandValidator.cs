@@ -26,7 +26,8 @@ internal sealed class CreateProductCommandValidator : AbstractValidator<CreatePr
 
         RuleFor(x => x.Description)
             .MaximumLength(2000)
-            .WithMessage("Product description must not exceed 2000 characters.");
+            .WithMessage("Product description must not exceed 2000 characters.")
+            .When(x => !string.IsNullOrWhiteSpace(x.Description));
 
         RuleFor(x => x.Price)
             .GreaterThan(0)
@@ -43,7 +44,8 @@ internal sealed class CreateProductCommandValidator : AbstractValidator<CreatePr
 
         RuleFor(x => x.Barcode)
             .MinimumLength(3).WithMessage("Product barcode must be at least 3 characters.")
-            .MaximumLength(100).WithMessage("Barcode must not exceed 100 characters.");
+            .MaximumLength(100).WithMessage("Barcode must not exceed 100 characters.")
+            .When(x => !string.IsNullOrWhiteSpace(x.Barcode));
 
         //RuleFor(x => x.Images)
         //    .Cascade(CascadeMode.Stop)
@@ -68,7 +70,7 @@ internal sealed class CreateProductCommandValidator : AbstractValidator<CreatePr
         //            var extension = Path.GetExtension(img.FileName).ToLowerInvariant();
         //            return allowedExtensions.Contains(extension);
         //        }).WithMessage("Only JPG, JPEG, PNG, and WEBP formats are allowed.");
-                
+
         //    image.RuleFor(i => i.IsPrimary)
         //        .NotNull().WithMessage("IsPrimary must be specified.");
 

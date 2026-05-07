@@ -26,12 +26,15 @@ public static class Pagination
 
         var items = await query
             .OrderBy(keySelector)
-            .Take(validSize)
+            .Take(validSize + 1)
             .ToListAsync(ct);
 
-        TKey? nextCursor = items.Any()
+        TKey? nextCursor = items.Count > validSize
             ? keySelector.Compile()(items.Last())
             : null;
+
+        if (nextCursor.HasValue)
+            items.RemoveAt(items.Count - 1);
 
         return (items, nextCursor);
     }

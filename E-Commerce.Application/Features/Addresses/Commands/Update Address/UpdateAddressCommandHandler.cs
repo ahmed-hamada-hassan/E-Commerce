@@ -1,5 +1,4 @@
-﻿using E_Commerce.Application.Interfaces.Data;
-using E_Commerce.Domain.Entities;
+﻿using E_Commerce.Domain.Entities;
 using E_Commerce.Domain.Errors;
 using E_Commerce.Domain.Shared;
 using MediatR;
@@ -12,13 +11,11 @@ namespace E_Commerce.Application.Features.Addresses.Commands.Update_Address;
 internal sealed class UpdateAddressCommandHandler : IRequestHandler<UpdateAddressCommand, Result<bool>>
 {
     private readonly UserManager<ApplicationUser> _userManager;
-    private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<UpdateAddressCommandHandler> _logger;
 
-    public UpdateAddressCommandHandler(UserManager<ApplicationUser> userManager, IUnitOfWork unitOfWork, ILogger<UpdateAddressCommandHandler> logger)
+    public UpdateAddressCommandHandler(UserManager<ApplicationUser> userManager, ILogger<UpdateAddressCommandHandler> logger)
     {
         _userManager = userManager;
-        _unitOfWork = unitOfWork;
         _logger = logger;
     }
 
@@ -38,7 +35,7 @@ internal sealed class UpdateAddressCommandHandler : IRequestHandler<UpdateAddres
 
         if (address is null)
         {
-            _logger.LogWarning("Address with ID {AddressId} not found for user with ID {UserId} when attempting to update address.", 
+            _logger.LogWarning("Address with ID {AddressId} not found for user with ID {UserId} when attempting to update address.",
                 request.AddressId, request.UserId);
             return Result<bool>.Failure(AddressErrors.NotFound);
         }
@@ -53,7 +50,7 @@ internal sealed class UpdateAddressCommandHandler : IRequestHandler<UpdateAddres
             request.AddressInfo.AddressType
         );
 
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        await _userManager.UpdateAsync(user);
 
         return Result<bool>.Success(true);
     }
