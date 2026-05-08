@@ -21,14 +21,23 @@
 
 
 
+## 🔗 Quick Links
+| 🌐 Live API | 📖 Interactive Docs (Scalar) | 📂 OpenAPI Spec |
+|:---:|:---:|:---:|
+| [http://my-ecommerce.runasp.net](http://my-ecommerce.runasp.net) | [http://my-ecommerce.runasp.net/scalar/](http://my-ecommerce.runasp.net/scalar/) | [`./openapi.yaml`](./openapi.yaml) |
+
+---
+
+<br/>
+
 ## 🌐 Live Environment
 
 <p align="left">
   <img src="https://img.shields.io/badge/Hosted_on-Monster_ASP.NET-blue?style=for-the-badge&logo=microsoft" alt="Hosted on Monster ASP.NET" />
 </p>
 
-- **Live Base URL:** `https://site67484.siteasp.net` *(Replace `http://localhost:{port}` with this URL in frontend config)*
-- **API Documentation (Scalar/Swagger):** [https://site67484.siteasp.net/scalar/v1](https://site67484.siteasp.net/scalar/v1)
+- **Live Base URL:** `http://my-ecommerce.runasp.net` *(Replace `http://localhost:{port}` with this URL in frontend config)*
+- **API Documentation (Scalar):** [http://my-ecommerce.runasp.net/scalar/](http://my-ecommerce.runasp.net/scalar/)
 
 <br/>
 
@@ -298,7 +307,9 @@ E-Commerce/
 
 ## 🔌 API Endpoints
 
-### 🔐 Authentication
+<details>
+<summary><b>🔐 Authentication</b></summary>
+
 | Method | Endpoint | Description | Auth |
 |:------:|:---------|:------------|:----:|
 | `POST` | `/api/Auth/register-customer` | Register a new customer | ❌ |
@@ -307,13 +318,21 @@ E-Commerce/
 | `POST` | `/api/Auth/login` | Login & receive JWT + refresh token | ❌ |
 | `POST` | `/api/Auth/refresh-token` | Rotate access token | ❌ |
 
-### 🛍️ Customer — Products
+</details>
+
+<details>
+<summary><b>🛍️ Customer — Products</b></summary>
+
 | Method | Endpoint | Description | Auth |
 |:------:|:---------|:------------|:----:|
 | `GET` | `/api/customer/products` | Browse products (offset pagination) | ❌ |
 | `GET` | `/api/customer/products/{id}` | Get product details | ❌ |
 
-### 📦 Vendor — Products & Images
+</details>
+
+<details>
+<summary><b>📦 Vendor — Products & Images</b></summary>
+
 | Method | Endpoint | Description | Auth |
 |:------:|:---------|:------------|:----:|
 | `GET` | `/api/vendor/products` | List own products | 🔒 Vendor |
@@ -332,19 +351,31 @@ E-Commerce/
 | `DELETE` | `/api/vendor/products/{id}/images/{imgId}` | Delete image | 🔒 Vendor |
 | `DELETE` | `/api/vendor/products/{id}/images` | Clear all images | 🔒 Vendor |
 
-### 👤 User — Profile (Customer & Vendor)
+</details>
+
+<details>
+<summary><b>👤 User — Profile (Customer & Vendor)</b></summary>
+
 | Method | Endpoint | Description | Auth |
 |:------:|:---------|:------------|:----:|
 | `GET` | `/api/user/profile` | Get own profile | 🔒 Authenticated |
 | `PUT` | `/api/user/profile` | Update personal info | 🔒 Authenticated |
 | `PUT` | `/api/user/profile/image` | Update profile avatar | 🔒 Authenticated |
 
-### 🏪 Vendor — Store Profile
+</details>
+
+<details>
+<summary><b>🏪 Vendor — Store Profile</b></summary>
+
 | Method | Endpoint | Description | Auth |
 |:------:|:---------|:------------|:----:|
 | `PUT` | `/api/vendor/store/profile` | Update store info | 🔒 Vendor |
 
-### 📍 Customer — Address
+</details>
+
+<details>
+<summary><b>📍 Customer — Address</b></summary>
+
 | Method | Endpoint | Description | Auth |
 |:------:|:---------|:------------|:----:|
 | `GET` | `/api/addresses` | List addresses | 🔒 Customer |
@@ -354,7 +385,11 @@ E-Commerce/
 | `PATCH` | `/api/addresses/{id}/set-default` | Set default shipping address | 🔒 Customer |
 | `DELETE` | `/api/addresses/{id}` | Delete address | 🔒 Customer |
 
-### 🛒 Cart & Orders
+</details>
+
+<details>
+<summary><b>🛒 Cart & Orders</b></summary>
+
 | Method | Endpoint | Description | Auth |
 |:------:|:---------|:------------|:----:|
 | `GET` | `/api/cart` | View cart | 🔒 Customer |
@@ -368,7 +403,11 @@ E-Commerce/
 | `POST` | `/api/orders/{id}/cancel` | Cancel order | 🔒 Customer |
 | `POST` | `/api/orders/{id}/return-request` | Request a return | 🔒 Customer |
 
-### ⭐ Feedback
+</details>
+
+<details>
+<summary><b>⭐ Feedback</b></summary>
+
 | Method | Endpoint | Description | Auth |
 |:------:|:---------|:------------|:----:|
 | `GET` | `/api/products/{id}/feedbacks` | Browse product reviews | ❌ |
@@ -376,13 +415,21 @@ E-Commerce/
 | `PUT` | `/api/feedbacks/{id}` | Edit own review | 🔒 Customer |
 | `DELETE` | `/api/feedbacks/{id}` | Delete own review | 🔒 Customer |
 
-### 🚚 Representative
+</details>
+
+<details>
+<summary><b>🚚 Representative</b></summary>
+
 | Method | Endpoint | Description | Auth |
 |:------:|:---------|:------------|:----:|
 | `GET` | `/api/representative/returns/approved` | List approved return requests | 🔒 Representative / SuperAdmin |
 | `POST` | `/api/representative/status/{returnReqId}` | Complete or reject a return | 🔒 Representative / SuperAdmin |
 
-### 🛠️ Admin — Categories
+</details>
+
+<details>
+<summary><b>🛠️ Admin — Categories</b></summary>
+
 | Method | Endpoint | Description | Auth |
 |:------:|:---------|:------------|:----:|
 | `GET` | `/api/admin/categories` | List active categories | 🔒 SuperAdmin |
@@ -394,7 +441,11 @@ E-Commerce/
 | `PATCH` | `/api/admin/categories/{id}/restore` | Restore category | 🔒 SuperAdmin |
 | `DELETE` | `/api/admin/categories/{id}` | Delete category | 🔒 SuperAdmin |
 
-### 🛠️ Admin — Products
+</details>
+
+<details>
+<summary><b>🛠️ Admin — Products</b></summary>
+
 | Method | Endpoint | Description | Auth |
 |:------:|:---------|:------------|:----:|
 | `GET` | `/api/admin/products` | List available products | 🔒 SuperAdmin |
@@ -409,7 +460,11 @@ E-Commerce/
 | `DELETE` | `/api/admin/products/{id}/images/{imgId}` | Remove inappropriate image | 🔒 SuperAdmin |
 | `DELETE` | `/api/admin/products/{id}/images` | Clear all product images | 🔒 SuperAdmin |
 
-### 🛠️ Admin — Orders
+</details>
+
+<details>
+<summary><b>🛠️ Admin — Orders</b></summary>
+
 | Method | Endpoint | Description | Auth |
 |:------:|:---------|:------------|:----:|
 | `GET` | `/api/admin/orders/processing` | Processing orders for a day | 🔒 Admin / SuperAdmin |
@@ -417,7 +472,11 @@ E-Commerce/
 | `PATCH` | `/api/admin/orders/{id}/shipped` | Mark order as shipped | 🔒 Admin / SuperAdmin |
 | `POST` | `/api/admin/orders/{returnReqId}/accept-reject-return-req` | Approve/reject return request | 🔒 Admin / SuperAdmin |
 
-### 🛠️ Admin — Users
+</details>
+
+<details>
+<summary><b>🛠️ Admin — Users</b></summary>
+
 | Method | Endpoint | Description | Auth |
 |:------:|:---------|:------------|:----:|
 | `GET` | `/api/users` | List users | 🔒 SuperAdmin |
@@ -427,7 +486,11 @@ E-Commerce/
 | `DELETE` | `/api/users/{id}` | Delete user | 🔒 SuperAdmin |
 | `PATCH` | `/api/users/{id}/restore` | Restore user | 🔒 SuperAdmin |
 
-### 🛠️ Admin — Vendors
+</details>
+
+<details>
+<summary><b>🛠️ Admin — Vendors</b></summary>
+
 | Method | Endpoint | Description | Auth |
 |:------:|:---------|:------------|:----:|
 | `GET` | `/api/admin/vendors` | List vendors | 🔒 SuperAdmin |
@@ -435,11 +498,17 @@ E-Commerce/
 | `PATCH` | `/api/admin/vendors/{id}/active` | Activate vendor | 🔒 SuperAdmin |
 | `PATCH` | `/api/admin/vendors/{id}/deactive` | Deactivate vendor | 🔒 SuperAdmin |
 
-### 🛠️ Admin — Feedback
+</details>
+
+<details>
+<summary><b>🛠️ Admin — Feedback</b></summary>
+
 | Method | Endpoint | Description | Auth |
 |:------:|:---------|:------------|:----:|
 | `GET` | `/api/admin/feedbacks/pending` | Pending reviews queue | 🔒 SuperAdmin |
 | `PATCH` | `/api/admin/feedbacks/{id}/approve` | Approve review | 🔒 SuperAdmin |
+
+</details>
 
 <br/>
 
@@ -451,36 +520,55 @@ E-Commerce/
 
 This API uses standardized patterns designed to streamline frontend integration. Please refer to the guidelines below before starting.
 
-### 1. Using the OpenAPI Specification
+### 1. Base URL
+Explicitly configure your HTTP client (e.g., Axios or Fetch) to use the production URL:
+```javascript
+const apiClient = axios.create({
+  baseURL: 'http://my-ecommerce.runasp.net'
+});
+```
+
+### 2. Using the OpenAPI Specification
 An `openapi.yaml` file is provided in the repository root containing all major endpoints and schemas.
 **To import into Postman/Insomnia:**
 1. Download or clone this repository.
 2. Open Postman, click **Import**, and select the `openapi.yaml` file.
 3. All collections, endpoints, and request/response models will be generated automatically.
 
-### 2. The Result Pattern
-Every API response (success or failure) is wrapped in a consistent `Result<T>` structure. This guarantees a predictable shape for your HTTP clients (like Axios or Fetch).
+### 3. The Result Pattern
+Every API response (success or failure) is wrapped in a consistent `Result<T>` structure. This guarantees a predictable shape for your HTTP clients.
 
-**Structure:**
+| Field | Type | Description |
+|:---|:---|:---|
+| `isSuccess` | `boolean` | Indicates if the request completed successfully. |
+| `value` | `object/array/null` | The actual requested payload when `isSuccess` is true. |
+| `isFailure` | `boolean` | Indicates if an error or validation failure occurred. |
+| `error` | `object` | Contains `code` and `message` properties explaining the failure. |
+
+**Structure Example:**
 ```json
 {
   "isSuccess": true,
   "isFailure": false,
-  "error": {
-    "code": "Error.None",
-    "message": "No error occurred"
-  },
+  "error": { "code": "Error.None", "message": "No error occurred" },
   "value": { ... } // Your requested data goes here
 }
 ```
 **Handling Errors:**
 If an error occurs (e.g., validation failed, entity not found), `isSuccess` will be `false`, and the `error` object will contain a specific `code` and `message` to display to the user.
 
-### 3. Authentication Flow (JWT)
+### 4. Authentication Flow & Scalar UI Testing
 The API uses JWT Bearer tokens for authentication and short-lived access tokens with long-lived refresh tokens.
-1. **Login:** Call `/api/Auth/login` to receive an `accessToken` and a `refreshToken`.
-2. **Authorized Requests:** Attach the `accessToken` in the `Authorization` header: `Bearer <your_token>`.
-3. **Refresh:** When the `accessToken` expires (returns 401 Unauthorized), call `/api/Auth/refresh-token` using your `refreshToken` to obtain a new pair.
+- **Login:** Call `/api/Auth/login` to receive an `accessToken` and a `refreshToken`.
+- **Authorized Requests:** Attach the `accessToken` in the `Authorization` header: `Bearer <your_token>`.
+- **Refresh:** When the `accessToken` expires (returns 401 Unauthorized), call `/api/Auth/refresh-token` using your `refreshToken` to obtain a new pair.
+
+**Testing in Scalar UI:**
+1. Navigate to the [Interactive Docs (Scalar)](http://my-ecommerce.runasp.net/scalar/).
+2. Expand the `Authentication` section and execute `/api/Auth/login` with your credentials.
+3. Copy the returned `accessToken`.
+4. Click the "Authorize" button or select "Bearer Authentication" in Scalar's auth dropdown.
+5. Paste your token (no need to type "Bearer ") and apply. You can now test any protected endpoint directly from the browser!
 
 <br/>
 

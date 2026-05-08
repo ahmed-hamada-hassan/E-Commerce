@@ -6,7 +6,7 @@ info:
     A production-ready, enterprise-grade RESTful API for modern e-commerce platforms.
     Built with Clean Architecture, CQRS, and Domain-Driven Design.
 servers:
-  - url: https://site67484.siteasp.net/
+  - url: http://my-ecommerce.runasp.net
     description: Live Production Environment (Monster ASP.NET)
 
 security:
