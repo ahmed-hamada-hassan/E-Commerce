@@ -38,8 +38,8 @@ public class ApplicationUserConfiguration : IEntityTypeConfiguration<Application
             .HasForeignKey(a => a.UserId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        //builder.Navigation(u => u.Addresses)
-        //    .UsePropertyAccessMode(PropertyAccessMode.Field);
+        builder.Metadata.FindNavigation(nameof(ApplicationUser.Addresses))
+            ?.SetPropertyAccessMode(PropertyAccessMode.Field);
 
         //builder.HasOne(u => u.Cart)
         //    .WithOne(c => c.User)

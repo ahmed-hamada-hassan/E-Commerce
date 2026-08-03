@@ -10,7 +10,8 @@ public class AddressConfiguration : IEntityTypeConfiguration<Address>
     {
         #region Properties
         builder.HasKey(a => a.Id);
-        builder.Property(a => a.Id).ValueGeneratedNever();
+
+        builder.Property(a => a.Id).ValueGeneratedNever();  
 
         builder.Property(a => a.AddressLine1)
             .IsRequired()
