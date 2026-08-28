@@ -261,40 +261,42 @@ E-Commerce/
 │   ├── 📁 Behaviors/                    # MediatR pipeline behaviors
 │   │   ├── LoggingBehavior.cs
 │   │   └── ValidateBehavior.cs
+│   ├── 📁 Common/                       # Settings (JWT, Cloudinary, Redis, Pagination)
 │   ├── 📁 Features/                     # CQRS feature slices
-│   │   ├── 📁 Auth/
-│   │   ├── 📁 Products/ & ProductImages/
-│   │   ├── 📁 Categories/
-│   │   ├── 📁 Orders/
-│   │   ├── 📁 Carts/                    # Includes Buy-Now cart
-│   │   ├── 📁 Wishlists/                # Add/Remove/Get wishlist
-│   │   ├── 📁 Feedbacks/
-│   │   ├── 📁 Vendors/
 │   │   ├── 📁 Addresses/
-│   │   └── 📁 Users/
+│   │   ├── 📁 Auth/
+│   │   ├── 📁 Carts/                    # Includes Buy-Now cart
+│   │   ├── 📁 Categories/
+│   │   ├── 📁 Feedbacks/
+│   │   ├── 📁 Orders/
+│   │   ├── 📁 ProductImages/
+│   │   ├── 📁 Products/
+│   │   ├── 📁 Users/
+│   │   ├── 📁 Vendors/
+│   │   └── 📁 Wishlists/                # Add/Remove/Get wishlist
 │   └── 📁 Interfaces/
+│       ├── 📁 Data/                     # IAppDbContext
+│       ├── 📁 Dependency Injection/     # Extension methods for DI
 │       ├── 📁 Repositories/             # IWishlistRepository, ICartRepository, etc.
-│       ├── 📁 Services/                 # IUserContext, ITokenService, ICartContext, etc.
-│       └── 📁 Data/
+│       └── 📁 Services/                 # IUserContext, ITokenService, ICartContext, etc.
 │
-├── 📁 E-Commerce.Infrastructure/
+├── 📁 E-Commerce.Infrastructure/        # Infrastructure Layer
+│   ├── 📁 BackgroundJobs/               # Quartz/Hangfire jobs
 │   ├── 📁 Data/
 │   │   ├── AppDbContext.cs
-│   │   ├── DbInitializer.cs             # Seeds roles, users, vendor profiles & addresses
-│   │   ├── UnitOfWork.cs
 │   │   ├── 📁 Configs/                  # Includes WishlistConfiguration
 │   │   ├── 📁 Interceptors/             # SoftDeleteInterceptor
-│   │   └── 📁 Repositories/             # Includes WishlistRepo
-│   ├── 📁 Services/
-│   │   ├── CloudinaryService.cs
-│   │   ├── TokenService.cs              # JWT + vendor_id claim
-│   │   ├── UserContext.cs               # Resolves UserId, VendorId, roles from JWT
-│   │   ├── CartContext.cs               # Resolves cart identity from cookies/headers
-│   │   └── 📁 Payments/
-│   ├── 📁 BackgroundJobs/
-│   └── 📁 Migrations/
+│   │   └── 📁 Repositories/             # Includes WishlistRepo & Shared
+│   ├── 📁 Migrations/                   # EF Core Migrations
+│   └── 📁 Services/
+│       ├── CloudinaryService.cs
+│       ├── TokenService.cs              # JWT + vendor_id claim
+│       ├── UserContext.cs               # Resolves UserId, VendorId, roles from JWT
+│       ├── CartContext.cs               # Resolves cart identity from cookies/headers
+│       └── 📁 Payments/                 # Payment processors
 │
-├── 📁 E-Commerce.Domain/
+├── 📁 E-Commerce.Domain/                # Domain Layer (Core)
+│   ├── 📁 Common/                       # SoftDeletable base
 │   ├── 📁 Entities/
 │   │   ├── ApplicationUser.cs
 │   │   ├── Product.cs, ProductImage.cs
@@ -307,11 +309,10 @@ E-Commerce/
 │   │   ├── Category.cs
 │   │   └── Vendor.cs
 │   ├── 📁 Enums/                        # OrderStatus, PaymentMethod, AddressType, etc.
-│   ├── 📁 Errors/                       # Includes WishlistErrors
-│   ├── 📁 Common/                       # SoftDeletable base
+│   ├── 📁 Errors/                       # Domain-specific errors
 │   └── 📁 Shared/                       # Result<T>, AppRoles
 │
-└── E-Commerce.slnx
+└── E-Commerce.slnx                      # Solution file
 ```
 
 <br/>
