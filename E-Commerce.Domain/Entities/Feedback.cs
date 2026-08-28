@@ -12,14 +12,14 @@ public class Feedback : SoftDeletable
     public Guid? AdminId { get; private set; }
     public byte Rating { get; private set; }
     public string? Comment { get; private set; }
-    public DateTime CreatedDate { get; private set; }
-    public DateTime? UpdatedDate { get; private set; }
-    public DateTime? ApprovedAt { get; private set; }
+    public DateTimeOffset CreatedDate { get; private set; }
+    public DateTimeOffset? UpdatedDate { get; private set; }
+    public DateTimeOffset? ApprovedAt { get; private set; }
     public bool IsApproved { get; private set; } = false;
     public bool IsVerifiedPurchase { get; private set; } = false;
 
     private Feedback(Guid id, Guid userId, Guid productId, Guid? adminId, byte rating, string? comment, 
-        DateTime createdDate, DateTime? updatedDate, DateTime? approvedAt, bool isApproved, bool isVerifiedPurchase)
+        DateTimeOffset createdDate, DateTimeOffset? updatedDate, DateTimeOffset? approvedAt, bool isApproved, bool isVerifiedPurchase)
     {
         Id = id;
         UserId = userId;
@@ -44,7 +44,8 @@ public class Feedback : SoftDeletable
         if(rating < 1 || rating > 5)
             return Result<Feedback>.Failure(FeedbackErrors.InvalidRating);
 
-        var feedback = new Feedback(Guid.NewGuid(), userId, productId, null, rating, comment, DateTime.UtcNow, null, null, false, isVerifiedPurchase);
+        var feedback = new Feedback(Guid.NewGuid(), userId, productId, null, rating, comment, DateTimeOffset.UtcNow, 
+            null, null, false, isVerifiedPurchase);
         return Result<Feedback>.Success(feedback);
     }
 
@@ -55,7 +56,7 @@ public class Feedback : SoftDeletable
         if(!string.IsNullOrWhiteSpace(comment))
             Comment = comment;
 
-        UpdatedDate = DateTime.UtcNow;
+        UpdatedDate = DateTimeOffset.UtcNow;
         return Result<bool>.Success(true);
     }
 
@@ -63,5 +64,6 @@ public class Feedback : SoftDeletable
     {
         IsApproved = true;
         AdminId = adminId;
+        ApprovedAt = DateTimeOffset.UtcNow;
     }
 }

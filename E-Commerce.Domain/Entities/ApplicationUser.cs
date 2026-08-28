@@ -21,7 +21,7 @@ public class ApplicationUser : IdentityUser<Guid>, ISoftDeletable
     public Guid? DefaultShippingAddressId { get; private set; }
     public Address? DefaultShippingAddress { get; private set; }
     public string? RefreshToken { get; private set; }
-    public DateTime RefreshTokenExpiryTime { get; private set; }
+    public DateTimeOffset RefreshTokenExpiryTime { get; private set; }
 
     public bool IsDeleted { get; set; } = false;
     public DateTimeOffset? DeleteOn { get; set; }
@@ -107,14 +107,19 @@ public class ApplicationUser : IdentityUser<Guid>, ISoftDeletable
         DefaultShippingAddressId = addressId;
     }
 
-    public void UpdateRefreshToken(string refreshToken, DateTime expiryTime)
+    public void UpdateRefreshToken(string refreshToken, DateTimeOffset expiryTime)
     {
         RefreshToken = refreshToken;
         RefreshTokenExpiryTime = expiryTime;
     }
 
-    public void AddAddress(Address address)
+    public Result<bool> AddAddress(Address address)
     {
+        if(Addresses.Count >= 5)
+        {
+            return Result<bool>.Failure(AddressErrors.MaxActiveAddressesReached);
+        }
         _addresses.Add(address);
+        return Result<bool>.Success(true);
     }
 }

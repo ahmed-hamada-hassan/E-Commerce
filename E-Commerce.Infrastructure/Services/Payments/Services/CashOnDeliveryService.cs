@@ -13,14 +13,12 @@ public class CashOnDeliveryService : IPaymentService
 
     public async Task<Result<Guid>> ProcessPaymentAsync(Order order, decimal amount, CancellationToken ct)
     {
-        var paymentResult = Payment.Create(order.Id, amount, Method);
+        var result = order.AddPayment(PaymentMethod.CashOnDelivery);
 
-        if (paymentResult.IsFailure)
-            return Result<Guid>.Failure(paymentResult.Error);
+        if (result.IsFailure)
+            return Result<Guid>.Failure(result.Error);
 
-        order.AddPayment(paymentResult.Value!);
-
-        return Result<Guid>.Success(paymentResult.Value!.Id);
+        return Result<Guid>.Success(result.Value!.Id);
     }
 
     public async Task<Result<Guid>> RefundPaymentAsync(Guid adminId, Order order, List<ReturnRequestItemsDto> itemsToRefund, string reason, CancellationToken ct)

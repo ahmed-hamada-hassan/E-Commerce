@@ -5,7 +5,10 @@ namespace E_Commerce.Application.Interfaces.Repositories;
 
 public interface ICartRepository : IScopedService
 {
-    Task<Cart?> GetAsync(Guid UserId, CancellationToken ct);
-    Task<Cart?> UpdateAsync(Cart cart, Guid UserId, CancellationToken ct);
-    Task<bool> DeleteAsync(Guid UserId, CancellationToken ct);
+    Task<Cart?> GetAsync(Guid CartId, CancellationToken ct);
+    Task<bool> UpdateAsync(Cart Cart, CancellationToken ct);
+    Task<bool> DeleteAsync(Guid CartId, CancellationToken ct);
+    Task<bool> DeleteBuyNowCartAsync(Guid CartId, CancellationToken ct);
+    Task<bool> SetBuyNowCartAsync(Cart Cart, CancellationToken ct);
+    Task<Cart?> GetBuyNowCartAsync(Guid CartId, CancellationToken ct);
 }

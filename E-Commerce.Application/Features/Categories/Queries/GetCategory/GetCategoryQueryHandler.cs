@@ -6,7 +6,7 @@ using MediatR;
 
 namespace E_Commerce.Application.Features.Categories.Queries.GetCategory;
 
-internal sealed class GetCategoryQueryHandler : IRequestHandler<GetCategoryQuery, Result<CategoryResponse>>
+internal sealed class GetCategoryQueryHandler : IRequestHandler<GetCategoryQuery, Result<PublicCategoryResponse>>
 {
     private readonly ICategoryRepository _categoryRepository;
 
@@ -15,12 +15,12 @@ internal sealed class GetCategoryQueryHandler : IRequestHandler<GetCategoryQuery
         _categoryRepository = categoryRepository;
     }
 
-    public async Task<Result<CategoryResponse>> Handle(GetCategoryQuery request, CancellationToken cancellationToken)
+    public async Task<Result<PublicCategoryResponse>> Handle(GetCategoryQuery request, CancellationToken cancellationToken)
     {
         var category = await _categoryRepository.GetByIdAsync(request.Id, cancellationToken);
-        if (category == null) return Result<CategoryResponse>.Failure(CategoryErrors.NotFound);
+        if (category == null) return Result<PublicCategoryResponse>.Failure(CategoryErrors.NotFound);
 
-        var response = category.ToCategoryResponse();
-        return Result<CategoryResponse>.Success(response);
+        var response = category.ToPublicCategoryResponse();
+        return Result<PublicCategoryResponse>.Success(response);
     }
 }

@@ -79,7 +79,7 @@ internal sealed class LoginCommandHandler : IRequestHandler<LoginCommand, Result
         var accessToken = await _tokenService.GenerateAccessToken(user, cancellationToken);
         var refreshToken = _tokenService.GenerateRefreshToken();
 
-        var refreshTokenExpirationTime = DateTime.UtcNow.AddDays(_jwtSettings.AccessRefreshTokenExpirationInDays);
+        var refreshTokenExpirationTime = DateTimeOffset.UtcNow.AddDays(_jwtSettings.AccessRefreshTokenExpirationInDays);
         user.UpdateRefreshToken(refreshToken, refreshTokenExpirationTime);
 
         var result = await _userManager.UpdateAsync(user);

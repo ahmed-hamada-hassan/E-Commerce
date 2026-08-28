@@ -28,4 +28,22 @@ internal sealed class FeedbackRepo : IFeedbackRepository
     {
         return await _dbContext.Reviews.FirstOrDefaultAsync(r => r.Id == feedbackId, cancellationToken);
     }
+
+    public async Task<(double AverageRating, int TotalReviews)> GetProductRatingAsync(Guid productId, CancellationToken cancellationToken)
+    {
+        var ratingData = await _dbContext.Reviews.AsNoTracking()
+        .Where(r => r.ProductId == productId && r.IsApproved)
+        .GroupBy(r => r.ProductId) 
+        .Select(g => new
+        {
+            TotalReviews = g.Count(),
+            AverageRating = Math.Round(g.Average(x => (double?)x.Rating) ?? 0, 1)
+        })
+        .FirstOrDefaultAsync(cancellationToken);
+
+        if (ratingData == null)
+            return (0, 0);
+
+        return (ratingData.AverageRating, ratingData.TotalReviews);
+    }
 }

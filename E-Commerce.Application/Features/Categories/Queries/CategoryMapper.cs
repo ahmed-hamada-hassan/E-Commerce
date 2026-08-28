@@ -33,10 +33,11 @@ public static class CategoryMapper
     public static PublicCategoryResponse ToPublicCategoryResponse(this Category request)
     {
         return new PublicCategoryResponse(
+            Id: request.Id,
             Name: request.Name,
             Description: request.Description,
             ParentCategoryName: request.ParentCategory?.Name,
             ImageUrl: request.ImageUrl
-            );
+        );
     }
 }

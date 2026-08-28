@@ -2,4 +2,4 @@
 
 namespace E_Commerce.Application.Features.Orders.DTOs;
 
-public record PlaceOrderRequest(bool? UseDefaultShippingAddress, Guid? AddressId, PlaceOrderAddress? NewAddress, PaymentMethod PaymentMethod);
+public record PlaceOrderRequest(Guid? CartId, bool? UseDefaultShippingAddress, Guid? AddressId, PlaceOrderAddress? NewAddress, PaymentMethod PaymentMethod);

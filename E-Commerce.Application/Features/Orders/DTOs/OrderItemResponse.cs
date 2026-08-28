@@ -3,6 +3,7 @@
 public record OrderItemResponse(
     Guid ProductId,
     string ProductName,
+    string MainImageUrl,
     int Quantity,
     decimal UnitPrice,
     decimal TotalPrice

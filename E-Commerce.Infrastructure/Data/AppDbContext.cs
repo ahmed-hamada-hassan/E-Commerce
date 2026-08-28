@@ -25,6 +25,11 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid
     public DbSet<Feedback> Reviews { get; set; }
     #endregion
 
+    #region Shopping DbSets
+    public DbSet<WishlistItem> WishlistItems { get; set; }
+    public DbSet<Wishlist> Wishlists { get; set; }
+    #endregion
+
     #region CheckOut DbSets
     public DbSet<Order> Orders { get; set; }
     public DbSet<OrderItem> OrderItems { get; set; }

@@ -1,13 +1,15 @@
-﻿namespace E_Commerce.Application.Features.Orders.DTOs;
+﻿using E_Commerce.Domain.Enums;
+
+namespace E_Commerce.Application.Features.Orders.DTOs;
 
 public record OrderDetailsResponse(
     Guid Id,
-    DateTime OrderedDate,
+    DateTimeOffset OrderedDate,
     string Status,
     decimal TotalAmount,
     decimal ShippingCost,
     string ShippingAddress,
-    string PaymentMethod,
+    PaymentMethod PaymentMethod,
     List<OrderItemResponse> Items,
     CancellationResponse? Cancellation
 );

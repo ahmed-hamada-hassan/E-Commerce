@@ -17,7 +17,7 @@ namespace E_Commerce.Infrastructure.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.5")
+                .HasAnnotation("ProductVersion", "10.0.11")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -25,7 +25,6 @@ namespace E_Commerce.Infrastructure.Migrations
             modelBuilder.Entity("E_Commerce.Domain.Entities.Address", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("AddressLine1")
@@ -152,8 +151,8 @@ namespace E_Commerce.Infrastructure.Migrations
                     b.Property<string>("RefreshToken")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("RefreshTokenExpiryTime")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset>("RefreshTokenExpiryTime")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
@@ -186,8 +185,8 @@ namespace E_Commerce.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime>("CancellationDate")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset>("CancellationDate")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<Guid>("OrderId")
                         .HasColumnType("uniqueidentifier");
@@ -253,15 +252,15 @@ namespace E_Commerce.Infrastructure.Migrations
                     b.Property<Guid?>("AdminId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime?>("ApprovedAt")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset?>("ApprovedAt")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<string>("Comment")
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
 
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset>("CreatedDate")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<DateTimeOffset?>("DeleteOn")
                         .HasColumnType("datetimeoffset");
@@ -281,8 +280,8 @@ namespace E_Commerce.Infrastructure.Migrations
                     b.Property<byte>("Rating")
                         .HasColumnType("tinyint");
 
-                    b.Property<DateTime?>("UpdatedDate")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset?>("UpdatedDate")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
@@ -302,11 +301,8 @@ namespace E_Commerce.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("AddressId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("OrderedDate")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset>("OrderedDate")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<string>("ShippingAddress")
                         .IsRequired()
@@ -334,8 +330,6 @@ namespace E_Commerce.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AddressId");
-
                     b.HasIndex("OrderedDate");
 
                     b.HasIndex("ShippingAddressId");
@@ -352,6 +346,10 @@ namespace E_Commerce.Infrastructure.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("MainImageUrl")
+                        .IsRequired()
+                        .HasColumnType("varchar(500)");
 
                     b.Property<Guid>("OrderId")
                         .HasColumnType("uniqueidentifier");
@@ -396,8 +394,8 @@ namespace E_Commerce.Infrastructure.Migrations
                     b.Property<Guid>("OrderId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime>("PaymentDate")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset>("PaymentDate")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<string>("PaymentMethod")
                         .IsRequired()
@@ -535,8 +533,8 @@ namespace E_Commerce.Infrastructure.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
-                    b.Property<DateTime>("RefundDate")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset>("RefundDate")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<string>("RefundStatus")
                         .IsRequired()
@@ -576,8 +574,8 @@ namespace E_Commerce.Infrastructure.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
-                    b.Property<DateTime>("RequestedDate")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset>("RequestedDate")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -633,6 +631,46 @@ namespace E_Commerce.Infrastructure.Migrations
                         .IsUnique();
 
                     b.ToTable("Vendors", "Catalog");
+                });
+
+            modelBuilder.Entity("E_Commerce.Domain.Entities.Wishlist", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Wishlists", "Shopping");
+                });
+
+            modelBuilder.Entity("E_Commerce.Domain.Entities.WishlistItem", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("AddedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("WishlistId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductId");
+
+                    b.HasIndex("WishlistId");
+
+                    b.ToTable("WishlistItems", "Shopping");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<System.Guid>", b =>
@@ -832,10 +870,6 @@ namespace E_Commerce.Infrastructure.Migrations
                 {
                     b.HasOne("E_Commerce.Domain.Entities.Address", null)
                         .WithMany("Orders")
-                        .HasForeignKey("AddressId");
-
-                    b.HasOne("E_Commerce.Domain.Entities.Address", null)
-                        .WithMany()
                         .HasForeignKey("ShippingAddressId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -941,6 +975,36 @@ namespace E_Commerce.Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("E_Commerce.Domain.Entities.Wishlist", b =>
+                {
+                    b.HasOne("E_Commerce.Domain.Entities.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("E_Commerce.Domain.Entities.WishlistItem", b =>
+                {
+                    b.HasOne("E_Commerce.Domain.Entities.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("E_Commerce.Domain.Entities.Wishlist", "Wishlist")
+                        .WithMany("Items")
+                        .HasForeignKey("WishlistId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+
+                    b.Navigation("Wishlist");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole<System.Guid>", null)
@@ -1028,6 +1092,11 @@ namespace E_Commerce.Infrastructure.Migrations
             modelBuilder.Entity("E_Commerce.Domain.Entities.Product", b =>
                 {
                     b.Navigation("Images");
+                });
+
+            modelBuilder.Entity("E_Commerce.Domain.Entities.Wishlist", b =>
+                {
+                    b.Navigation("Items");
                 });
 #pragma warning restore 612, 618
         }

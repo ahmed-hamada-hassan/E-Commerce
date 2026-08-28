@@ -14,7 +14,7 @@ public interface IProductRepository : IScopedService
     Task<bool> HardDeleteAsync(Product product, CancellationToken cancellationToken);
     Task<ICollection<Product>> GetExpiredDeletedProductsAsync(DateTime cutoffDate, CancellationToken cancellationToken);
     Task<bool> IsSKUExistsAsync(string sku, Guid? execuldeProductId, CancellationToken cancellationToken);
-    Task<(IReadOnlyList<Product> Items, int TotalCount, int TotalPages)> FilteredAvailableProductsAsync(string? searchTerm, decimal? minPrice, 
+    Task<(IReadOnlyList<(Product Product, double Rating, int TotalReviews)> Items, int TotalCount, int TotalPages)> FilteredAvailableProductsAsync(Guid? categoryId, string? searchTerm, decimal? minPrice, 
         decimal? maxPrice, string? sortBy, int page, int size, CancellationToken cancellationToken);
     #endregion
 

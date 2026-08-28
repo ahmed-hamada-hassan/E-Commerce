@@ -2,8 +2,10 @@
 
 public record ProductFeedbackResponse(
     Guid FeedbackId,
+    Guid UserId,
+    string? ImageUrl,
     string UserName,
     byte Rating,
     string? Comment,
-    DateTime CreatedDate,
+    DateTimeOffset CreatedDate,
     bool IsVerifiedPurchase);

@@ -12,4 +12,9 @@ public static class AppRoles
     {
         Admin, Customer, Vendor, SuperAdmin, Representative
     };
+
+    public static readonly HashSet<string> AdminRoles = new HashSet<string>
+    {
+        Admin, SuperAdmin, Representative
+    };
 }

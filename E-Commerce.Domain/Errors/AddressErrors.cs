@@ -11,4 +11,5 @@ public class AddressErrors
     public static readonly Error MissingCountry = new ("Address.MissingCountry", "The Country is required.");
     public static readonly Error InvalidAddressType = new("Address.InvalidAddressType", "The address type must be either 'Shipping' or 'Billing'.");
     public static readonly Error NotFound = new("Address.NotFound", "The specified address was not found.");
+    public static readonly Error MaxActiveAddressesReached = new("Address.MaxActiveAddressesReached", "The user has reached the maximum limit of 5 active addresses.");
 }

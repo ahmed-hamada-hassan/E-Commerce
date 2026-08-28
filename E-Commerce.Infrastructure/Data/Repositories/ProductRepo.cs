@@ -68,15 +68,20 @@ internal sealed class ProductRepo : IProductRepository
         return await _dbContext.Products
             .AnyAsync(p => p.SKU == sku && (!execuldeProductId.HasValue || p.Id != execuldeProductId.Value), cancellationToken);
     }
-    public async Task<(IReadOnlyList<Product> Items, int TotalCount, int TotalPages)> FilteredAvailableProductsAsync(string? searchTerm, 
-        decimal? minPrice, decimal? maxPrice, string? sortBy, int page, int size, CancellationToken cancellationToken)
+    public async Task<(IReadOnlyList<(Product Product, double Rating, int TotalReviews)> Items, int TotalCount, int TotalPages)> FilteredAvailableProductsAsync(
+    Guid? categoryId, string? searchTerm, decimal? minPrice, decimal? maxPrice, string? sortBy, int page, int size, CancellationToken cancellationToken)
     {
         var query = _dbContext.Products
             .AsNoTracking()
             .Include(p => p.Images)
             .Where(p => !p.IsDeleted && !p.DeletedByAdmin);
 
-        query = string.IsNullOrWhiteSpace(searchTerm) ? query : 
+        if (categoryId.HasValue)
+        {
+            query = query.Include(p => p.Category)
+                .Where(p => p.CategoryId == categoryId.Value);
+        }
+        query = string.IsNullOrWhiteSpace(searchTerm) ? query :
             query.Where(p => p.Name.Contains(searchTerm) || (p.Description != null && p.Description.Contains(searchTerm)));
         query = minPrice.HasValue ? query.Where(p => p.Price >= minPrice.Value) : query;
         query = maxPrice.HasValue ? query.Where(p => p.Price <= maxPrice.Value) : query;
@@ -89,7 +94,20 @@ internal sealed class ProductRepo : IProductRepository
             _ => query.OrderBy(p => p.Name).ThenBy(p => p.Id)
         };
 
-        return await query.OffsetPaginateAsync(page, size, _paginationSettings.MaxSize, cancellationToken);
+        var projectedQuery = query.Select(p => new
+        {
+            Product = p,
+            Rating = _dbContext.Set<Feedback>().Where(f => f.ProductId == p.Id).Average(r => (double?)r.Rating) ?? 0.0,
+            TotalReviews = _dbContext.Set<Feedback>().Count(f => f.ProductId == p.Id)
+        });
+
+        var paginatedResult = await projectedQuery.OffsetPaginateAsync(page, size, _paginationSettings.MaxSize, cancellationToken);
+
+        var tupleItems = paginatedResult.Items
+            .Select(x => (x.Product, x.Rating, x.TotalReviews))
+            .ToList();
+
+        return (tupleItems, paginatedResult.TotalCount, paginatedResult.TotalPages);
     }
     #endregion
 

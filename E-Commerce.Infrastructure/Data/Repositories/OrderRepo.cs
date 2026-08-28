@@ -42,6 +42,7 @@ internal sealed class OrderRepo : IOrderRepository
     {
         return  _dbContext.Orders
             .Include(o => o.OrderItems)
+            .Include(o => o.Payment)
             .Include(o => o.Cancellation)
             .FirstOrDefaultAsync(o => o.Id == orderId, cancellationToken);
 

@@ -10,9 +10,9 @@ public class Cancellation
     public Order Order { get; private set; } = null!;
     public Guid? UserId { get; private set; }
     public string Reason { get; private set; } = null!;
-    public DateTime CancellationDate { get; private set; }
+    public DateTimeOffset CancellationDate { get; private set; }
 
-    private Cancellation(Guid id, Guid orderId, Guid? userId, string reason, DateTime cancellationDate)
+    private Cancellation(Guid id, Guid orderId, Guid? userId, string reason, DateTimeOffset cancellationDate)
     {
         Id = id;
         OrderId = orderId;
@@ -29,7 +29,7 @@ public class Cancellation
         if (string.IsNullOrWhiteSpace(reason))
             return Result<Cancellation>.Failure(CancellationErrors.EmptyReason);
 
-        var cancellation = new Cancellation(Guid.NewGuid(), orderId, userId, reason, DateTime.UtcNow);
+        var cancellation = new Cancellation(Guid.NewGuid(), orderId, userId, reason, DateTimeOffset.UtcNow);
         return Result<Cancellation>.Success(cancellation);
     }
 }

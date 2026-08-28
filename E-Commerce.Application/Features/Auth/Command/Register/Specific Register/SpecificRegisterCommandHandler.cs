@@ -31,12 +31,6 @@ internal sealed class SpecificRegisterCommandHandler : IRequestHandler<SpecificR
 
     public async Task<Result<AuthResponse>> Handle(SpecificRegisterCommand request, CancellationToken cancellationToken)
     {
-        if (request.Role == AppRoles.Vendor)
-        {
-            _logger.LogWarning("Admin User attempted to register a Vendor via the SpecificRegister endpoint. Email: {Email}", request.Email);
-            return Result<AuthResponse>.Failure(new Error("Auth.InvalidEndpoint", "Please use the specialized Vendor Registration endpoint for this role."));
-        }
-
         var existingUser = await _userManager.FindByEmailAsync(request.Email);
         if(existingUser is not null) return Result<AuthResponse>.Failure(ApplicationUserErrors.EmailAlreadyExists);
 
@@ -72,7 +66,7 @@ internal sealed class SpecificRegisterCommandHandler : IRequestHandler<SpecificR
 
         var accessToken = await _tokenService.GenerateAccessToken(userValue, cancellationToken);
         var refreshToken = _tokenService.GenerateRefreshToken();
-        userValue.UpdateRefreshToken(refreshToken, DateTime.UtcNow.AddDays(_jwtSettings.AccessRefreshTokenExpirationInDays));
+        userValue.UpdateRefreshToken(refreshToken, DateTimeOffset.UtcNow.AddDays(_jwtSettings.AccessRefreshTokenExpirationInDays));
         await _userManager.UpdateAsync(userValue);
 
         return Result<AuthResponse>.Success(new AuthResponse(AccessToken: accessToken, RefreshToken: refreshToken));

@@ -91,7 +91,7 @@ internal sealed class RegisterVendorCommandHandler : IRequestHandler<RegisterVen
 
         var accessToken = await _tokenService.GenerateAccessToken(userValue, cancellationToken);
         var refreshToken = _tokenService.GenerateRefreshToken();
-        userValue.UpdateRefreshToken(refreshToken, DateTime.UtcNow.AddDays(_jwtSettings.AccessRefreshTokenExpirationInDays));
+        userValue.UpdateRefreshToken(refreshToken, DateTimeOffset.UtcNow.AddDays(_jwtSettings.AccessRefreshTokenExpirationInDays));
         await _userManager.UpdateAsync(userValue);
 
 

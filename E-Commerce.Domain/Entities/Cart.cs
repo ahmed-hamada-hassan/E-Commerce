@@ -2,13 +2,15 @@
 
 public class Cart
 {
-    public Guid UserId { get; set; }
+    public Guid Id { get; init; }
+    public Guid? UserId { get; set; }
     public List<CartItem> Items { get; set; } = new();
 
     public Cart() { }
 
-    public Cart(Guid userId)
+    public Cart(Guid id, Guid? userId)
     {
+        Id = id;
         UserId = userId;
     }
 

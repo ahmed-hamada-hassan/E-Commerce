@@ -5,15 +5,22 @@ namespace E_Commerce.Application.Features.Products.Queries;
 
 public static class ProductMapper
 {
-    public static CustomerProductResponse ToCustomerProductResponse(this Product request)
+    public static CustomerProductDetailsResponse ToCustomerProductDetailsResponse(this Product request, double averageRating, int totalReviews)
     {
-        return new CustomerProductResponse(
+        return new CustomerProductDetailsResponse(
+            Id: request.Id,
             categoryName: request.Category.Name,
+            categoryId: request.CategoryId,
             name: request.Name,
             description: request.Description,
             price: request.Price,
             sku: request.SKU,
             barcode: request.Barcode,
+            isInStock: request.StockQuantity > 0,
+            lowStockQuantity: request.StockQuantity <= 5 ? (byte)request.StockQuantity : null,
+            maxAllowedPerOrder: (byte)Math.Min(10, request.StockQuantity),
+            AverageRating: averageRating,
+            TotalReviews: totalReviews,
             images: request.Images.Select(i => new ProductImageResponse
             (
                 ImageUrl: i.ImageUrl,

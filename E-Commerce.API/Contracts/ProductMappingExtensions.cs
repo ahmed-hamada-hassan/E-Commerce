@@ -10,9 +10,10 @@ namespace E_Commerce.API.Contracts;
 
 public static class ProductMappingExtensions
 {
-    public static GetProductsQuery ToGetProductQuery (this CustomerProductsRequest request)
+    public static GetProductsQuery ToGetProductQuery (this CustomerProductsRequest request, Guid? categoryId)
     {
         return new GetProductsQuery(
+            CategoryId: categoryId,
             SearchTerm: request.SearchTerm,
             MinPrice: request.MinPrice,
             MaxPrice: request.MaxPrice,

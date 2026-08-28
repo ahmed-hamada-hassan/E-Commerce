@@ -4,4 +4,4 @@ using MediatR;
 
 namespace E_Commerce.Application.Features.Products.Queries.GetProduct;
 
-public record GetProductQuery(Guid Id) : IRequest<Result<CustomerProductResponse>>;
+public record GetProductQuery(Guid Id) : IRequest<Result<CustomerProductDetailsResponse>>;

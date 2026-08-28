@@ -37,8 +37,11 @@ internal sealed class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderComma
 
     public async Task<Result<Guid>> Handle(PlaceOrderCommand request, CancellationToken cancellationToken)
     {
-        var cart = await _cartRepository.GetAsync(request.UserId, cancellationToken);
-        if(cart is null || !cart.Items.Any())
+        var cart = request.CartId.HasValue
+            ? await _cartRepository.GetBuyNowCartAsync(request.CartId.Value, cancellationToken):
+              await _cartRepository.GetAsync(request.UserId, cancellationToken);
+
+        if (cart is null || !cart.Items.Any())
         {
             _logger.LogWarning("User with id {UserId} attempted to place an order with an empty cart.", request.UserId);
             return Result<Guid>.Failure(CartErrors.CartNotFound);
@@ -57,6 +60,12 @@ internal sealed class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderComma
 
         if(request.NewAddress is not null)
         {
+            if(user.Addresses.Count >= 5)
+            {
+                _logger.LogWarning("User with id {UserId} attempted to add a new address but has reached the maximum limit of 5 active addresses.", request.UserId);
+                return Result<Guid>.Failure(AddressErrors.MaxActiveAddressesReached);
+            }
+
             var newAddress = Address.Create(request.UserId, request.NewAddress.AddressLine1, request.NewAddress.AddressLine2, 
                 request.NewAddress.City, request.NewAddress.StateOrProvince, request.NewAddress.PostalCode, 
                 request.NewAddress.Country, AddressType.Shipping);
@@ -68,13 +77,18 @@ internal sealed class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderComma
 
             selectedAddress = newAddress.Value;
 
-            user.AddAddress(selectedAddress!);
+            var addAddressResult = user.AddAddress(selectedAddress!);
+            if(addAddressResult.IsFailure)
+            {
+                _logger.LogWarning("Failed to add address for user with id {UserId}. Errors: {Errors}", request.UserId, addAddressResult.Error);
+                return Result<Guid>.Failure(addAddressResult.Error);
+            }
         }
         else if(request.AddressId is not null)
         {
-            selectedAddress = user.Addresses.FirstOrDefault(a => a.Id == request.AddressId && !a.IsDeleted);
+            selectedAddress = user.Addresses.FirstOrDefault(a => a.Id == request.AddressId);
         }
-        else if(request.UseDefaulShippingAddress.HasValue)
+        else if(request.UseDefaultShippingAddress.HasValue && request.UseDefaultShippingAddress.Value)
             selectedAddress = user.DefaultShippingAddress;
 
         if(selectedAddress is null)
@@ -87,7 +101,7 @@ internal sealed class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderComma
             $"{selectedAddress.City}, {(string.IsNullOrEmpty(selectedAddress.StateOrProvince) ? "" : selectedAddress.StateOrProvince + ", ")}" +
             $"{selectedAddress.PostalCode}, {selectedAddress.Country}";
 
-        var shippingCost = 40.00m; // This could be calculated based on the address and order details
+        var shippingCost = 50.00m; // This could be calculated based on the address and order details
 
         var order = Order.Create(request.UserId, selectedAddress.Id, addressSnapshot, shippingCost);
         if(order.IsFailure)
@@ -118,7 +132,7 @@ internal sealed class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderComma
                 return Result<Guid>.Failure(result.Error);
             }
 
-            order.Value!.AddOrderItem(product.Id, product.Name, product.Price, item.Quantity);
+            order.Value!.AddOrderItem(product.Id, product.Name, product.MainImageUrl!, product.Price, item.Quantity);
         }
 
         var paymentService = _paymentFactory.GetPaymentService(request.PaymentMethod);
@@ -136,11 +150,22 @@ internal sealed class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderComma
             return Result<Guid>.Failure(paymentResult.Error);
         }
 
+        var addPaymentResult = order.Value!.AddPayment(request.PaymentMethod);
+
+        if (addPaymentResult.IsFailure)
+        {
+            _logger.LogWarning("Failed to add payment for user {UserId}. Error: {Error}", request.UserId, addPaymentResult.Error);
+            return Result<Guid>.Failure(addPaymentResult.Error);
+        }
+
         var orderId = await _orderRepository.AddAsync(order.Value!, cancellationToken);
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        await _cartRepository.DeleteAsync(user.Id, cancellationToken);
+        if(request.CartId.HasValue)
+            await _cartRepository.DeleteBuyNowCartAsync(request.CartId.Value, cancellationToken);
+        else
+            await _cartRepository.DeleteAsync(user.Id, cancellationToken);
 
         return Result<Guid>.Success(orderId);
     }

@@ -9,5 +9,5 @@ public record ApprovedReturnRequestResponse(
     decimal UnitPrice,
     decimal TotalRefundAmount,
     string Reason,
-    DateTime RequestedDate
+    DateTimeOffset RequestedDate
 );

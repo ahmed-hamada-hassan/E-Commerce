@@ -23,7 +23,7 @@ internal sealed class GetMyOrderSummaryQueryHandler :
         var orderSummaries = orders.Items.Select(order => new OrderSummaryResponse(
             order.Id,
             order.OrderedDate,
-            order.Status.ToString(),
+            order.Status,
             order.TotalAmount,
             order.ShippingCost,
             order.Status == Domain.Enums.OrderStatus.Pending && order.OrderedDate.AddHours(24) > DateTime.UtcNow

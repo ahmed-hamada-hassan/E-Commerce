@@ -1,5 +1,4 @@
 ﻿using E_Commerce.Application.Interfaces.Repositories;
-using E_Commerce.Application.Interfaces.Services;
 using E_Commerce.Domain.Shared;
 using MediatR;
 
@@ -9,14 +8,14 @@ internal sealed class ClearCartCommandHandler : IRequestHandler<ClearCartCommand
 {
     private readonly ICartRepository _cartRepository;
 
-    public ClearCartCommandHandler(IUserContext userContext, ICartRepository cartRepository)
+    public ClearCartCommandHandler(ICartRepository cartRepository)
     {
         _cartRepository = cartRepository;
     }
 
     public async Task<Result<bool>> Handle(ClearCartCommand request, CancellationToken cancellationToken)
     {
-        await _cartRepository.DeleteAsync(request.UserId, cancellationToken);
+        await _cartRepository.DeleteAsync(request.CartId, cancellationToken);
 
         return Result<bool>.Success(true);
     }

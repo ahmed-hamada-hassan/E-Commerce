@@ -9,8 +9,11 @@ internal sealed class PlaceOrderCommandValidate : AbstractValidator<PlaceOrderCo
         RuleFor(x => x.UserId)
             .NotEmpty().WithMessage("User ID cannot be empty.");
 
+        RuleFor(x => x.CartId)
+            .NotEqual(Guid.Empty).When(x => x.CartId.HasValue).WithMessage("Cart ID cannot be empty when provided.");
+
         RuleFor(x => x)
-            .Must(x => (x.UseDefaulShippingAddress == true) ||
+            .Must(x => (x.UseDefaultShippingAddress == true) ||
                                       x.AddressId.HasValue ||
                                       x.NewAddress is not null
                                       )

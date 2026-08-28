@@ -8,7 +8,6 @@ using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.JsonWebTokens;
 using System.Security.Claims;
 
 namespace E_Commerce.Application.Features.Auth.Command.RefreshToken;
@@ -20,7 +19,7 @@ internal sealed class RefreshTokenCommandHandler : IRequestHandler<RefreshTokenC
     private readonly JWTSettings _jwtSettings;
     private readonly ILogger<RefreshTokenCommandHandler> _logger;
 
-    public RefreshTokenCommandHandler(UserManager<ApplicationUser> userManager, ITokenService tokenService, 
+    public RefreshTokenCommandHandler(UserManager<ApplicationUser> userManager, ITokenService tokenService,
         IOptionsSnapshot<JWTSettings> jwtSettings, ILogger<RefreshTokenCommandHandler> logger)
     {
         _userManager = userManager;
@@ -37,7 +36,7 @@ internal sealed class RefreshTokenCommandHandler : IRequestHandler<RefreshTokenC
         if (userId is null) return Result<AuthResponse>.Failure(ApplicationUserErrors.InvalidToken);
 
         var user = await _userManager.FindByIdAsync(userId);
-        if (user is null || user.RefreshToken != request.RefreshToken || user.RefreshTokenExpiryTime <= DateTime.UtcNow)
+        if (user is null || user.RefreshToken != request.RefreshToken || user.RefreshTokenExpiryTime <= DateTimeOffset.UtcNow)
         {
             _logger.LogWarning("SECURITY ALERT: Invalid or expired Refresh Token attempt for UserID: {UserId}. Token tampering or theft possible.", userId);
             return Result<AuthResponse>.Failure(ApplicationUserErrors.InvalidRefreshToken);
@@ -46,7 +45,7 @@ internal sealed class RefreshTokenCommandHandler : IRequestHandler<RefreshTokenC
         var newAccessToken = await _tokenService.GenerateAccessToken(user, cancellationToken);
         var newRefreshToken = _tokenService.GenerateRefreshToken();
 
-        var expiryTime = DateTime.UtcNow.AddDays(_jwtSettings.AccessRefreshTokenExpirationInDays);
+        var expiryTime = DateTimeOffset.UtcNow.AddDays(_jwtSettings.AccessRefreshTokenExpirationInDays);
         user.UpdateRefreshToken(newRefreshToken, expiryTime);
 
         await _userManager.UpdateAsync(user);

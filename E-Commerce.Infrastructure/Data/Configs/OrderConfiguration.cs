@@ -43,7 +43,7 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
             .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasOne<Address>()
-            .WithMany()
+            .WithMany(a => a.Orders)
             .HasForeignKey(o => o.ShippingAddressId)
             .OnDelete(DeleteBehavior.Restrict);
         #endregion

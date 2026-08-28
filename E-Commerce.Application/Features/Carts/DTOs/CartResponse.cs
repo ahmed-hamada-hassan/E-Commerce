@@ -1,7 +1,7 @@
 ﻿namespace E_Commerce.Application.Features.Carts.DTOs;
 
 public record CartResponse(
-    Guid UserId,
+    Guid CartId,
     List<CartItemResponse> Items,
     decimal TotalPrice
 );

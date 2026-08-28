@@ -4,4 +4,4 @@ using MediatR;
 
 namespace E_Commerce.Application.Features.Categories.Queries.GetCategory;
 
-public record GetCategoryQuery(Guid Id) : IRequest<Result<CategoryResponse>>;
+public record GetCategoryQuery(Guid Id) : IRequest<Result<PublicCategoryResponse>>;

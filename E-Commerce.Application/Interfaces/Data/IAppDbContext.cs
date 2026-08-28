@@ -17,6 +17,9 @@ public interface IAppDbContext : IScopedService
     DbSet<ProductImage> ProductImages { get; set; }
     DbSet<Feedback> Reviews { get; set; }
 
+    DbSet<WishlistItem> WishlistItems { get; set; }
+    DbSet<Wishlist> Wishlists { get; set; }
+
     DbSet<Order> Orders { get; set; }
     DbSet<OrderItem> OrderItems { get; set; }
     DbSet<Cancellation> Cancellations { get; set; }

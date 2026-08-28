@@ -13,7 +13,7 @@ public class ReturnRequest
     public ReturnStatus Status { get; private set; }
     public byte Quantity { get; private set; }
     public string Reason { get; private set; } = null!;
-    public DateTime RequestedDate { get; private set; }
+    public DateTimeOffset RequestedDate { get; private set; }
 
     protected ReturnRequest() { }
 
@@ -25,7 +25,7 @@ public class ReturnRequest
         Quantity = quantity;
         Reason = reason;
         Status = ReturnStatus.Pending;
-        RequestedDate = DateTime.UtcNow;
+        RequestedDate = DateTimeOffset.UtcNow;
     }
 
     public static Result<ReturnRequest> Create(Guid orderId, Guid productId, byte quantity, string reason)

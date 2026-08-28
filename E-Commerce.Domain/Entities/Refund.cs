@@ -14,12 +14,12 @@ public class Refund
     public Payment Payment { get; private set; } = null!;
     public decimal Amount { get; private set; }
     public string Reason { get; private set; } = null!;
-    public DateTime RefundDate { get; private set; }
+    public DateTimeOffset RefundDate { get; private set; }
     public RefundStatus RefundStatus { get; private set; }
     public string? RefundTransactionId { get; private set; }
 
     private Refund(Guid id, Guid orderId, Guid adminId, Guid paymentId, decimal amount, string reason, 
-        DateTime refundDate, RefundStatus refundStatus, string? refundTransactionId)
+        DateTimeOffset refundDate, RefundStatus refundStatus, string? refundTransactionId)
     {
         Id = id;
         OrderId = orderId;
@@ -48,7 +48,7 @@ public class Refund
             return Result<Refund>.Failure(RefundErrors.EmptyReason);
 
         var refund = new Refund(Guid.NewGuid(), orderId, adminId, paymentId, amount, reason, 
-            DateTime.UtcNow, RefundStatus.Pending, null);
+            DateTimeOffset.UtcNow, RefundStatus.Pending, null);
         return Result<Refund>.Success(refund);
     }
 }

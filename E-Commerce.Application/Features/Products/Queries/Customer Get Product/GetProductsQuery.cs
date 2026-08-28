@@ -5,5 +5,5 @@ using MediatR;
 
 namespace E_Commerce.Application.Features.Products.Queries.GetProducts;
 
-public record GetProductsQuery(string? SearchTerm, decimal? MinPrice, decimal? MaxPrice, string? SortBy,
-    int Page, int Size) : IRequest<Result<OffsetPagedResult<CustomerProductResponse>>>, IOffsetPaginationRequest;
+public record GetProductsQuery(Guid? CategoryId, string? SearchTerm, decimal? MinPrice, decimal? MaxPrice, string? SortBy,
+    int Page, int Size) : IRequest<Result<OffsetPagedResult<CustomerProductDetailsResponse>>>, IOffsetPaginationRequest;

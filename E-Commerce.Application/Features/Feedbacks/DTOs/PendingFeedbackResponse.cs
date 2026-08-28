@@ -8,4 +8,4 @@ public record PendingFeedbackResponse(
     string UserName,
     byte Rating,
     string? Comment,
-    DateTime CreatedDate);
+    DateTimeOffset CreatedDate);

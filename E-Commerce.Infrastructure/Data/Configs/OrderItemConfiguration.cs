@@ -15,6 +15,10 @@ public class OrderItemConfiguration : IEntityTypeConfiguration<OrderItem>
             .IsRequired()
             .HasMaxLength(150);
 
+        builder.Property(oi => oi.MainImageUrl)
+            .HasColumnType("varchar(500)")
+            .IsRequired();
+
         builder.Property(oi => oi.Quantity)
             .IsRequired();
 

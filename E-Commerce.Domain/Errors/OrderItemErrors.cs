@@ -6,6 +6,7 @@ public class OrderItemErrors
 {
     public static readonly Error EmptyOrderId = new("OrderItem.EmptyOrderId", "Order ID cannot be empty.");
     public static readonly Error EmptyProductId = new("OrderItem.EmptyProductId", "Product ID cannot be empty.");
+    public static readonly Error EmptyMainImageUrl = new("OrderItem.EmptyMainImageUrl", "Main image URL cannot be empty.");
     public static readonly Error QuantityMustBeGreaterThanZero = new("OrderItem.QuantityMustBeGreaterThanZero", "Quantity must be greater than zero.");
     public static readonly Error UnitPriceCannotBeNegative = new("OrderItem.UnitPriceMustBePositiveOrEqualsZero", "Unit price must be positive or equals zero.");
     public static readonly Error EmptyProductName = new("OrderItem.EmptyProductName", "Product name cannot be empty.");

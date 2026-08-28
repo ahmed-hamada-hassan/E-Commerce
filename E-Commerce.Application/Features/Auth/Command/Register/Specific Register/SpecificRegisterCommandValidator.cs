@@ -73,7 +73,7 @@ internal sealed class SpecificRegisterCommandValidator : AbstractValidator<Speci
 
         RuleFor(u => u.Role)
             .NotEmpty().WithMessage("Role is required.")
-            .Must(role => AppRoles.AllRoles.Contains(role))
+            .Must(role => AppRoles.AdminRoles.Contains(role))
             .WithMessage("The specified role is invalid.");
 
     }

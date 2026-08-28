@@ -10,7 +10,7 @@ public class Order
     public Guid UserId { get; private set; }
     public string ShippingAddress { get; private set; } = null!;
     public Guid ShippingAddressId { get; private set; }
-    public DateTime OrderedDate { get; private set; }
+    public DateTimeOffset OrderedDate { get; private set; }
     public OrderStatus Status { get; private set; }
     public decimal TotalAmount { get; private set; }
     public decimal ShippingCost { get; private set; }
@@ -24,7 +24,7 @@ public class Order
     public IReadOnlyCollection<Refund> Refunds => _refunds.AsReadOnly();
     public IReadOnlyCollection<ReturnRequest> ReturnRequests => _returnRequests.AsReadOnly();
 
-    private Order(Guid id, Guid userId, Guid shippingAddressId, string shippingAddress, DateTime orderedDate, OrderStatus status, decimal shippingCost)
+    private Order(Guid id, Guid userId, Guid shippingAddressId, string shippingAddress, DateTimeOffset orderedDate, OrderStatus status, decimal shippingCost)
     {
         Id = id;
         UserId = userId;
@@ -45,13 +45,13 @@ public class Order
         if (shippingAddressId == Guid.Empty)
             return Result<Order>.Failure(OrderErrors.EmptyShippingAddressId);
 
-        var order = new Order(Guid.NewGuid(), userId, shippingAddressId, shippingAddress, DateTime.UtcNow, OrderStatus.Pending, shippingCost);
+        var order = new Order(Guid.NewGuid(), userId, shippingAddressId, shippingAddress, DateTimeOffset.UtcNow, OrderStatus.Pending, shippingCost);
         return Result<Order>.Success(order);
     }
 
-    public void AddOrderItem(Guid productId, string productName, decimal unitPrice, int quantity)
+    public void AddOrderItem(Guid productId, string productName, string mainImageUrl, decimal unitPrice, int quantity)
     {
-        var orderItemResult = OrderItem.Create(Id, productId, productName, quantity, unitPrice);
+        var orderItemResult = OrderItem.Create(Id, productId, productName, mainImageUrl, quantity, unitPrice);
 
         if (orderItemResult.IsSuccess)
         {
@@ -71,7 +71,7 @@ public class Order
             return Result<bool>.Failure(OrderErrors.AccessDenied);
         if(Status != OrderStatus.Pending)
             return Result<bool>.Failure(OrderErrors.CancellationWindowClosed);
-        if(OrderedDate.AddHours(24) < DateTime.UtcNow)
+        if(OrderedDate.AddHours(24) < DateTimeOffset.UtcNow)
             return Result<bool>.Failure(OrderErrors.CancellationWindowClosed);
         if(string.IsNullOrEmpty(reason))
             return Result<bool>.Failure(CancellationErrors.EmptyReason);
@@ -95,9 +95,16 @@ public class Order
         Status = OrderStatus.Delivered;
     }
 
-    public void AddPayment(Payment payment)
+    public Result<Payment> AddPayment(PaymentMethod paymentMethod)
     {
-        Payment = payment;
+        var paymentResult = Payment.Create(this.Id, this.TotalAmount, paymentMethod);
+
+        if (paymentResult.IsFailure)
+            return Result<Payment>.Failure(paymentResult.Error);
+
+        this.Payment = paymentResult.Value;
+
+        return Result<Payment>.Success(this.Payment!);
     }
 
     public Result<Guid> ApplyRefund(Guid adminId, List<(Guid productId, int quantity)> itemsToRefund, string reason)

@@ -224,6 +224,17 @@ builder.Services.AddRateLimiter(options =>
                 SegmentsPerWindow = 6
             }));
 
+    options.AddPolicy("BrowsingRateLimit", httpContext =>
+        RateLimitPartition.GetSlidingWindowLimiter(
+            partitionKey: "Browsing",
+            factory: _ => new SlidingWindowRateLimiterOptions
+            {
+                AutoReplenishment = true,
+                PermitLimit = 100,
+                Window = TimeSpan.FromMinutes(1),
+                SegmentsPerWindow = 6
+            }));
+
     options.AddPolicy("UserRateLimit", httpContext =>
     {
         var userId = httpContext.User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "Anonymous";
@@ -237,7 +248,7 @@ builder.Services.AddRateLimiter(options =>
                 Window = TimeSpan.FromMinutes(1),
                 SegmentsPerWindow = 6
             });
-    });
+    });    
 });
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi

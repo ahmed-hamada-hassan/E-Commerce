@@ -39,6 +39,8 @@ internal sealed class GetProductFeedbacksQueryHandler :
         .Take(request.Size + 1)
         .Select(x => new ProductFeedbackResponse(
             x.r.Id,
+            x.u.Id,
+            x.u.ImageUrl,
             x.u.FullName,
             x.r.Rating,
             x.r.Comment,
