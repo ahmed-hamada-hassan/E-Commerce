@@ -1,4 +1,4 @@
-﻿using E_Commerce.Domain.Common;
+using E_Commerce.Domain.Common;
 using E_Commerce.Domain.Errors;
 using E_Commerce.Domain.Shared;
 
@@ -24,12 +24,6 @@ public class Product : SoftDeletable
     public IReadOnlyCollection<ProductImage> Images => _images.AsReadOnly();
 
     public string? MainImageUrl => Images.FirstOrDefault(p => p.IsPrimary)?.ImageUrl ?? Images.FirstOrDefault()?.ImageUrl;
-
-    // This will load feedbacks and cart items lazily when accessed, which can help with performance if they are not always needed.
-    //private readonly List<Feedback> _feedbacks = new();
-    //private readonly List<CartItem> _cartItems = new();
-    //public IReadOnlyCollection<Feedback> Feedbacks => _feedbacks.AsReadOnly();
-    //public IReadOnlyCollection<CartItem> CartItems => _cartItems.AsReadOnly();
 
     private Product(Guid id, Guid categoryId, Guid vendorId, string name, string? description, decimal price, 
         string sku, string? barcode, int stockQuantity, DateTimeOffset createdOn)

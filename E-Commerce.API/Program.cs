@@ -1,3 +1,4 @@
+using E_Commerce.API.Extentsions;
 using E_Commerce.API.Middlewares;
 using E_Commerce.Application;
 using E_Commerce.Application.Behaviors;
@@ -11,16 +12,14 @@ using E_Commerce.Infrastructure.Data;
 using E_Commerce.Infrastructure.Data.Interceptors;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
 using Serilog;
-using System.Globalization;
-using System.Security.Claims;
 using System.Text;
 using System.Text.Json.Serialization;
-using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -70,7 +69,6 @@ builder.Services.AddIdentityCore<ApplicationUser>(options =>
     options.Password.RequireLowercase = true;
     options.Password.RequireDigit = true;
     options.Password.RequireNonAlphanumeric = true;
-    //options.Password.RequiredUniqueChars = 3;
 
     options.User.RequireUniqueEmail = true;
     options.User.AllowedUserNameCharacters =
@@ -79,10 +77,6 @@ builder.Services.AddIdentityCore<ApplicationUser>(options =>
     options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(10);
     options.Lockout.MaxFailedAccessAttempts = 5;
     options.Lockout.AllowedForNewUsers = true;
-
-    //options.SignIn.RequireConfirmedEmail = true;
-    //options.SignIn.RequireConfirmedPhoneNumber = false;
-    //options.SignIn.RequireConfirmedAccount = true;
 })
     .AddRoles<IdentityRole<Guid>>() // this line adds support for roles with a Guid as the key type
     .AddEntityFrameworkStores<AppDbContext>() // this line tells Identity Use Entity Framework Core to store users, roles, claims, tokens, etc.
@@ -195,66 +189,21 @@ builder.Services.AddAuthorization(options =>
         policy.RequireRole(AppRoles.Representative, AppRoles.SuperAdmin));
 });
 
-builder.Services.AddRateLimiter(options =>
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
 {
-    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
-    options.OnRejected = async (context, token) =>
-    {
-        if (context.Lease.TryGetMetadata(MetadataName.RetryAfter, out var retryAfter))
-        {
-            context.HttpContext.Response.Headers.RetryAfter = ((int)retryAfter.TotalSeconds)
-                .ToString(CultureInfo.InvariantCulture);
-        }
-
-        context.HttpContext.Response.ContentType = "application/json";
-        await context.HttpContext.Response.WriteAsync(
-            """{"error": "Too many requests. Please check the Retry-After header."}""",
-            token
-        );
-    };
-
-    options.AddPolicy("IpRateLimit", httpContext =>
-        RateLimitPartition.GetSlidingWindowLimiter(
-            partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown",
-            factory: _ => new SlidingWindowRateLimiterOptions
-            {
-                AutoReplenishment = true,
-                PermitLimit = 5,
-                Window = TimeSpan.FromMinutes(1),
-                SegmentsPerWindow = 6
-            }));
-
-    options.AddPolicy("BrowsingRateLimit", httpContext =>
-        RateLimitPartition.GetSlidingWindowLimiter(
-            partitionKey: "Browsing",
-            factory: _ => new SlidingWindowRateLimiterOptions
-            {
-                AutoReplenishment = true,
-                PermitLimit = 100,
-                Window = TimeSpan.FromMinutes(1),
-                SegmentsPerWindow = 6
-            }));
-
-    options.AddPolicy("UserRateLimit", httpContext =>
-    {
-        var userId = httpContext.User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "Anonymous";
-
-        return RateLimitPartition.GetSlidingWindowLimiter(
-            partitionKey: userId,
-            factory: _ => new SlidingWindowRateLimiterOptions
-            {
-                AutoReplenishment = true,
-                PermitLimit = 40,
-                Window = TimeSpan.FromMinutes(1),
-                SegmentsPerWindow = 6
-            });
-    });    
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    options.KnownIPNetworks.Clear(); // Clear the default known networks
+    options.KnownProxies.Clear();  // Clear the default known proxies
 });
+
+builder.Services.AddAppRateLimiter();
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
+
+app.UseForwardedHeaders();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -262,7 +211,6 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
     app.MapScalarApiReference();
 }
-
 
 app.UseExceptionHandler();
 app.UseHttpsRedirection();

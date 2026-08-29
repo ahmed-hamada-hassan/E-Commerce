@@ -6,13 +6,13 @@ using E_Commerce.Domain.Shared;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace E_Commerce.API.Controllers;
 
 [Route("api/customer/products")]
 [ApiController]
 [AllowAnonymous]
-//[EnableRateLimiting("UserRateLimit")]
 public class ProductsController : BaseApiController
 {
     private readonly IMediator _mediator;
@@ -23,6 +23,7 @@ public class ProductsController : BaseApiController
     }
 
     [HttpGet]
+    [EnableRateLimiting("SearchProducts")]
     public async Task<ActionResult<OffsetPagedResult<CustomerProductDetailsResponse>>> Products([FromQuery] CustomerProductsRequest productRequest, CancellationToken ct)
     {
         var result = await _mediator.Send(productRequest.ToGetProductQuery(null), ct);
@@ -30,6 +31,7 @@ public class ProductsController : BaseApiController
     }
 
     [HttpGet("batch")]
+    [EnableRateLimiting("PublicBrowsing")]
     public async Task<ActionResult<IEnumerable<CustomerProductDetailsResponse>>> ProductsByIds([FromQuery] List<string> ids, CancellationToken ct)
     {
         var result = await _mediator.Send(new GetProductsByIdsQuery(ids), ct);
@@ -37,6 +39,7 @@ public class ProductsController : BaseApiController
     }
 
     [HttpGet("{id:guid}")]
+    [EnableRateLimiting("PublicBrowsing")]
     public async Task<ActionResult<CustomerProductDetailsResponse>> Product(Guid id, CancellationToken ct)
     {
         var result = await _mediator.Send(new GetProductQuery(id), ct);

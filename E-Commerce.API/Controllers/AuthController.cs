@@ -11,7 +11,6 @@ namespace E_Commerce.API.Controllers;
 
 [Route("api/Auth")]
 [ApiController]
-[EnableRateLimiting("IpRateLimit")]
 public class AuthController : BaseApiController
 {
     private readonly IMediator _mediator;
@@ -22,6 +21,7 @@ public class AuthController : BaseApiController
     }
 
     [HttpPost("register-customer")]
+    [EnableRateLimiting("Signup")]
     public async Task<ActionResult<AuthResponse>> RegisterCustomer([FromForm] RegisterCustomerRequest request)
     {
         var registerCustomer = request.ToRegisterCustomerCommand();
@@ -31,6 +31,7 @@ public class AuthController : BaseApiController
     }
 
     [HttpPost("register-vendor")]
+    [EnableRateLimiting("Signup")]
     public async Task<ActionResult<AuthResponse>> RegisterVendor([FromForm] RegisterVendorRequest request)
     {
         var registerVendor = request.ToRegisterVendorCommand();
@@ -42,6 +43,7 @@ public class AuthController : BaseApiController
 
     [HttpPost("register")]
     [Authorize(Policy = "SuperAdmin-Only")]
+    [EnableRateLimiting("AdminSignup")]
     public async Task<ActionResult<AuthResponse>> Register([FromForm] RegisterRequest request)
     {
         var register = request.ToRegisterCommand();
@@ -51,6 +53,7 @@ public class AuthController : BaseApiController
     }
 
     [HttpPost("login")]
+    [EnableRateLimiting("Login")]
     public async Task<ActionResult<AuthResponse>> Login([FromBody] LoginRequest request)
     {
         var result = await _mediator.Send(new LoginCommand(request.Email, request.Password));
@@ -58,6 +61,7 @@ public class AuthController : BaseApiController
     }
 
     [HttpPost("refresh-token")]
+    [EnableRateLimiting("RefreshToken")]
     public async Task<ActionResult<AuthResponse>> RefreshToken([FromBody] RefreshTokenRequest request)
     {
         var result = await _mediator.Send(new RefreshTokenCommand(request.AccessToken, request.RefreshToken));

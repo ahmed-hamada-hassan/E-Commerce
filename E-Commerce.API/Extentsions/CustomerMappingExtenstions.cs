@@ -1,6 +1,5 @@
-﻿using E_Commerce.Application.Features.Users.Commands.UpdateUser;
+using E_Commerce.Application.Features.Users.Commands.UpdateUser;
 using E_Commerce.Application.Features.Users.DTOs;
-using Scalar.AspNetCore;
 
 namespace E_Commerce.API.Contracts;
 

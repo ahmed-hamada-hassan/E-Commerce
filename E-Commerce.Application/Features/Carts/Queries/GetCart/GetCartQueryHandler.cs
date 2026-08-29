@@ -1,6 +1,5 @@
-﻿using E_Commerce.Application.Features.Carts.DTOs;
+using E_Commerce.Application.Features.Carts.DTOs;
 using E_Commerce.Application.Interfaces.Repositories;
-using E_Commerce.Domain.Errors;
 using E_Commerce.Domain.Shared;
 using MediatR;
 
@@ -18,8 +17,6 @@ internal sealed class GetCartQueryHandler : IRequestHandler<GetCartQuery, Result
     public async Task<Result<CartResponse>> Handle(GetCartQuery request, CancellationToken cancellationToken)
     {
         var cart = await _cartRepository.GetAsync(request.CartId, cancellationToken);
-        //if (cart is null) 
-        //    return Result<CartResponse>.Failure(CartErrors.CartNotFound);
         return Result<CartResponse>.Success(cart?.ToCartResponse() ?? cart.ToEmptyCartResponse());
     }
 }

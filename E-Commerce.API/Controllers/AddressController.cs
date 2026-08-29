@@ -14,7 +14,7 @@ namespace E_Commerce.API.Controllers;
 [Route("api/addresses")]
 [ApiController]
 [Authorize]
-[EnableRateLimiting("UserRateLimit")]
+[EnableRateLimiting("UserActions")]
 public class AddressesController : BaseApiController
 {
     private readonly IMediator _mediator;

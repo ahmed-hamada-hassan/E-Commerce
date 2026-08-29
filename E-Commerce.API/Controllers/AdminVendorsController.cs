@@ -14,7 +14,7 @@ namespace E_Commerce.API.Controllers;
 [Route("api/admin/vendors")]
 [ApiController]
 [Authorize(policy: "SuperAdmin-Only")]
-[EnableRateLimiting("UserRateLimit")]
+[EnableRateLimiting("AdminManagement")]
 public class AdminVendorsController : BaseApiController
 {
     private readonly IMediator _mediator;

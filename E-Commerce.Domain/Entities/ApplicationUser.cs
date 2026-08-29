@@ -12,7 +12,6 @@ public class ApplicationUser : IdentityUser<Guid>, ISoftDeletable
     public string LastName { get; private set; } = null!;
     public string? ImageUrl { get; private set; }
 
-    //public Cart Cart { get; private set; } = null!;
     public DateOnly DateOfBirth { get; private set; }
 
     private readonly List<Address> _addresses = new();
@@ -27,14 +26,6 @@ public class ApplicationUser : IdentityUser<Guid>, ISoftDeletable
     public DateTimeOffset? DeleteOn { get; set; }
 
     public string FullName => $"{FirstName} {(string.IsNullOrWhiteSpace(MiddleName) ? "" : MiddleName + " ")}{LastName}".Trim();
-
-    // This is a Fat Agregate trap
-    //private readonly List<Order> _orders = new();
-    //private readonly List<Feedback> _feedbacks = new();
-    //private readonly List<Cancellation> _cancellations = new();
-    //public IReadOnlyCollection<Order> Orders => _orders.AsReadOnly();
-    //public IReadOnlyCollection<Feedback> Feedbacks => _feedbacks.AsReadOnly();
-    //public IReadOnlyCollection<Cancellation> Cancellations => _cancellations.AsReadOnly();
 
     private ApplicationUser(string firstName, string? middleName, string lastName, string email, string userName, string phoneNumber,
         string? imageUrl, DateOnly dateOfBirth) : base(userName)

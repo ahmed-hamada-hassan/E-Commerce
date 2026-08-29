@@ -15,7 +15,7 @@ namespace E_Commerce.API.Controllers;
 [Route("api/feedbacks")]
 [ApiController]
 [Authorize(Policy = "Customer-Only")]
-[EnableRateLimiting("UserRateLimit")]
+[EnableRateLimiting("FeedbackOperations")]
 public class ProductFeedbackController : BaseApiController
 {
     private readonly IMediator _mediator;

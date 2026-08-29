@@ -7,13 +7,13 @@ using E_Commerce.Domain.Shared;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace E_Commerce.API.Controllers;
 
 [Route("api/categories")]
 [ApiController]
 [AllowAnonymous]
-//[EnableRateLimiting("IpRateLimit")]
 public class CategoriesController : BaseApiController
 {
     private readonly IMediator _mediator;
@@ -24,6 +24,7 @@ public class CategoriesController : BaseApiController
     }
 
     [HttpGet]
+    [EnableRateLimiting("PublicBrowsing")]
     public async Task<ActionResult<CursorPagedResult<PublicCategoryResponse, Guid>>> Categories([FromQuery] CursorPaginationParams<Guid> paginationParams,
         CancellationToken ct)
     {
@@ -33,6 +34,7 @@ public class CategoriesController : BaseApiController
     }
 
     [HttpGet("{categoryId:guid}/products")]
+    [EnableRateLimiting("SearchProducts")]
     public async Task<ActionResult<OffsetPagedResult<CustomerProductDetailsResponse>>> FilteredCategoryProducts([FromRoute] Guid categoryId,
         [FromQuery] CustomerProductsRequest productRequest,
         CancellationToken ct)

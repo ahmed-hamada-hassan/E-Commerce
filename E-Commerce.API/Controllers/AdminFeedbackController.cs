@@ -13,7 +13,7 @@ namespace E_Commerce.API.Controllers;
 [Route("api/admin/feedbacks")]
 [ApiController]
 [Authorize(Policy = "SuperAdmin-Only")]
-[EnableRateLimiting("UserRateLimit")]
+[EnableRateLimiting("AdminManagement")]
 public class AdminFeedbackController : BaseApiController
 {
     private readonly IMediator _mediator;

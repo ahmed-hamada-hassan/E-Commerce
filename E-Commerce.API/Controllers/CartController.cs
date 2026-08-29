@@ -9,13 +9,13 @@ using E_Commerce.Application.Features.Carts.Queries.GetCart;
 using E_Commerce.Application.Interfaces.Services;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace E_Commerce.API.Controllers;
 
 [Route("api/cart")]
 [ApiController]
-//[Authorize(Policy = "Customer-Only")]
-//[EnableRateLimiting("UserRateLimit")]
+[EnableRateLimiting("GuestCartActions")]
 public class CartController : BaseApiController
 {
     private readonly IMediator _mediator;

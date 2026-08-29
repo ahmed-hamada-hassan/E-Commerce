@@ -5,12 +5,14 @@ using E_Commerce.Application.Features.Wishlists.Queries.Get_Wishlist;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace E_Commerce.API.Controllers;
 
 [ApiController]
 [Authorize]
 [Route("api/Wishlists")]
+[EnableRateLimiting("UserActions")]
 public class WishlistController : BaseApiController
 {
     private readonly IMediator _mediator;

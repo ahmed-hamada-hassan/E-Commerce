@@ -40,12 +40,6 @@ public class ApplicationUserConfiguration : IEntityTypeConfiguration<Application
 
         builder.Metadata.FindNavigation(nameof(ApplicationUser.Addresses))
             ?.SetPropertyAccessMode(PropertyAccessMode.Field);
-
-        //builder.HasOne(u => u.Cart)
-        //    .WithOne(c => c.User)
-        //    .HasForeignKey<Cart>(c => c.UserId)
-        //    .IsRequired()
-        //    .OnDelete(DeleteBehavior.Cascade);
         #endregion
 
         builder.ToTable("Users", "Identity");

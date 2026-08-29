@@ -10,7 +10,7 @@ namespace E_Commerce.API.Controllers;
 [Route("api/vendor/store/profile")]
 [ApiController]
 [Authorize(Policy = "Vendor-Only")]
-[EnableRateLimiting("UserRateLimit")]
+[EnableRateLimiting("ProfileManagement")]
 public class VendorStoreProfileController : BaseApiController
 {
     private readonly IMediator _mediator;

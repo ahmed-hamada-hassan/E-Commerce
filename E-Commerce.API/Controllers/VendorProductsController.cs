@@ -21,8 +21,8 @@ namespace E_Commerce.API.Controllers;
 
 [Route("api/vendor/products")]
 [ApiController]
-[EnableRateLimiting("UserRateLimit")]
 [Authorize(Policy = "Vendor-Only")]
+[EnableRateLimiting("VendorManagement")]
 public class VendorProductsController : BaseApiController
 {
     private readonly IMediator _mediator;

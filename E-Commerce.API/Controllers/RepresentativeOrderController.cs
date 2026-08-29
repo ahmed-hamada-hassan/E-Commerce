@@ -13,7 +13,7 @@ namespace E_Commerce.API.Controllers;
 [Route("api/representative")]
 [ApiController]
 [Authorize(Policy = "Representative-SuperAdmin-Only")]
-[EnableRateLimiting("UserRateLimit")]
+[EnableRateLimiting("RepresentativeOperations")]
 public class RepresentativeOrderController : BaseApiController
 {
     private readonly IMediator _mediator;

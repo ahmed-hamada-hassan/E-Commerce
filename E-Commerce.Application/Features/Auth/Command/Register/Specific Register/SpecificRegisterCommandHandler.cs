@@ -1,4 +1,4 @@
-﻿using E_Commerce.Application.Common;
+using E_Commerce.Application.Common;
 using E_Commerce.Application.Features.Auth.DTOs;
 using E_Commerce.Application.Interfaces.Services;
 using E_Commerce.Domain.Entities;
@@ -6,7 +6,6 @@ using E_Commerce.Domain.Errors;
 using E_Commerce.Domain.Shared;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace E_Commerce.Application.Features.Auth.Command.Register;
@@ -17,16 +16,14 @@ internal sealed class SpecificRegisterCommandHandler : IRequestHandler<SpecificR
     private readonly ITokenService _tokenService;
     private readonly JWTSettings _jwtSettings;
     private readonly IFileService _fileService;
-    private readonly ILogger<SpecificRegisterCommandHandler> _logger;
 
     public SpecificRegisterCommandHandler(UserManager<ApplicationUser> userManager, ITokenService tokenService, 
-        IOptionsSnapshot<JWTSettings> jwtSettings, IFileService fileService, ILogger<SpecificRegisterCommandHandler> logger)
+        IOptionsSnapshot<JWTSettings> jwtSettings, IFileService fileService)
     {
         _userManager = userManager;
         _tokenService = tokenService;
         _jwtSettings = jwtSettings.Value;
         _fileService = fileService;
-        _logger = logger;
     }
 
     public async Task<Result<AuthResponse>> Handle(SpecificRegisterCommand request, CancellationToken cancellationToken)

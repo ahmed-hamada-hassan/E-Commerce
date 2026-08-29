@@ -1,4 +1,4 @@
-﻿using E_Commerce.Domain.Common;
+using E_Commerce.Domain.Common;
 using E_Commerce.Domain.Errors;
 using E_Commerce.Domain.Shared;
 
@@ -15,10 +15,6 @@ public class Category : SoftDeletable
     public Category? ParentCategory { get; private set; }
     private readonly List<Category> _subCategories = new();
     public IReadOnlyCollection<Category> SubCategories => _subCategories.AsReadOnly();
-
-    
-    //private readonly List<Product> _products = new();
-    //public IReadOnlyCollection<Product> Products => _products.AsReadOnly();
 
     private Category(Guid id, string name, string? description, Guid? parentCategoryId, string? imageUrl)
     {

@@ -1,8 +1,6 @@
-﻿using E_Commerce.Application.Common;
+using E_Commerce.Application.Common;
 using E_Commerce.Application.Interfaces.Repositories;
-using E_Commerce.Application.Interfaces.Services;
 using E_Commerce.Domain.Entities;
-using E_Commerce.Infrastructure.Data.Repositories.Shared;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 

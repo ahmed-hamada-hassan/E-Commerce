@@ -1,7 +1,3 @@
-﻿using E_Commerce.Application.Interfaces.Services;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Options;
-
 namespace E_Commerce.Application.Common;
 
 public class CloudinarySettings

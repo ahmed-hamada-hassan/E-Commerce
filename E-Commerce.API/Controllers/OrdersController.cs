@@ -15,7 +15,7 @@ namespace E_Commerce.API.Controllers;
 [Route("api/orders")]
 [ApiController]
 [Authorize(Policy = "Customer-Only")]
-[EnableRateLimiting("UserRateLimit")]
+[EnableRateLimiting("OrderOperations")]
 public class OrdersController : BaseApiController
 {
     private readonly IMediator _mediator;

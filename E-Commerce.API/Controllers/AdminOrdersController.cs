@@ -1,6 +1,5 @@
-﻿using E_Commerce.Application.Common;
+using E_Commerce.Application.Common;
 using E_Commerce.Application.Features.Orders.Commands.Admin_Return_Request_Order;
-using E_Commerce.Application.Features.Orders.Commands.Representative_Return_Request_Order;
 using E_Commerce.Application.Features.Orders.Commands.Shipped_Order;
 using E_Commerce.Application.Features.Orders.DTOs;
 using E_Commerce.Application.Features.Orders.Queries.Admin_Get_Order;
@@ -16,7 +15,7 @@ namespace E_Commerce.API.Controllers;
 [Route("api/admin/orders")]
 [ApiController]
 [Authorize(Policy = "Admin-SuperAdmin-Only")]
-[EnableRateLimiting("UserRateLimit")]
+[EnableRateLimiting("AdminManagement")]
 public class AdminOrdersController : BaseApiController
 {
     private readonly IMediator _mediator;

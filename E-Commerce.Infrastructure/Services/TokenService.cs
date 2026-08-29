@@ -1,4 +1,4 @@
-﻿using E_Commerce.Application.Common;
+using E_Commerce.Application.Common;
 using E_Commerce.Application.Interfaces.Repositories;
 using E_Commerce.Application.Interfaces.Services;
 using E_Commerce.Domain.Entities;
@@ -51,14 +51,6 @@ internal sealed class TokenService : ITokenService
             if(vendor is not null)
                 claims.Add(new Claim("vendor_id", vendor.Id.ToString()));
         }
-
-        //var token = new JwtSecurityToken(
-        //    issuer: _jwtSettings.Issuer,
-        //    audience: _jwtSettings.Audience,
-        //    claims: claims,
-        //    expires: DateTime.UtcNow.AddMinutes(_jwtSettings.AccessTokenExpirationInMinutes),
-        //    signingCredentials: creds
-        //);
 
         var tokenDescriptor = new SecurityTokenDescriptor
         {

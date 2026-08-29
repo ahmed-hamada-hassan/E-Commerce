@@ -12,7 +12,6 @@ namespace E_Commerce.API.Controllers;
 [Route("api/user/profile")]
 [ApiController]
 [Authorize]
-[EnableRateLimiting("UserRateLimit")]
 public class UserProfileController : BaseApiController
 {
     private readonly IMediator _mediator;
@@ -30,6 +29,7 @@ public class UserProfileController : BaseApiController
     }
 
     [HttpPut]
+    [EnableRateLimiting("ProfileManagement")]
     public async Task<ActionResult> UpdateMyProfile([FromBody] UpdateCustomerInfoRequest request, CancellationToken ct)
     {
         var result = await _mediator.Send(request.ToUpdateCustomerCommand(CurrentUserId), ct);
@@ -37,6 +37,7 @@ public class UserProfileController : BaseApiController
     }
 
     [HttpPut("image")]
+    [EnableRateLimiting("ProfileManagement")]
     public async Task<ActionResult> UpdateMyProfileImage([FromForm] CustomerImageRequest request, CancellationToken ct)
     {
         var result = await _mediator.Send(new UpdateUserImageCommand(CurrentUserId, request.Image), ct);
