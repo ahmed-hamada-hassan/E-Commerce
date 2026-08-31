@@ -63,7 +63,7 @@ internal sealed class SpecificRegisterCommandHandler : IRequestHandler<SpecificR
 
         var accessToken = await _tokenService.GenerateAccessToken(userValue, cancellationToken);
         var refreshToken = _tokenService.GenerateRefreshToken();
-        userValue.UpdateRefreshToken(refreshToken, DateTimeOffset.UtcNow.AddDays(_jwtSettings.AccessRefreshTokenExpirationInDays));
+        userValue.UpdateRefreshToken(refreshToken, DateTimeOffset.UtcNow.AddDays(_jwtSettings.RefreshTokenExpirationInDays));
         await _userManager.UpdateAsync(userValue);
 
         return Result<AuthResponse>.Success(new AuthResponse(AccessToken: accessToken, RefreshToken: refreshToken));

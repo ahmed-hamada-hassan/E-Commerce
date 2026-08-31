@@ -352,8 +352,9 @@ The API implements a **comprehensive, multi-policy rate limiting system** using 
 | `POST` | `/api/Auth/register-customer` | Register a new customer | ❌ |
 | `POST` | `/api/Auth/register-vendor` | Register a new vendor | ❌ |
 | `POST` | `/api/Auth/register` | Register admin/representative | 🔒 SuperAdmin |
-| `POST` | `/api/Auth/login` | Login & receive JWT + refresh token | ❌ |
-| `POST` | `/api/Auth/refresh-token` | Rotate access & refresh tokens | ❌ |
+| `POST` | `/api/Auth/login` | Login & receive JWT (refresh token in HTTP-only cookie) | ❌ |
+| `POST` | `/api/Auth/logout` | Logout & clear refresh token cookie | 🔒 Authenticated |
+| `POST` | `/api/Auth/refresh-token` | Rotate access token & HTTP-only refresh token | ❌ |
 
 </details>
 
@@ -620,20 +621,21 @@ Every API response is wrapped in a consistent `Result<T>` envelope:
 ### 3. Authentication Flow
 
 ```
-POST /api/Auth/login  →  { accessToken, refreshToken }
+POST /api/Auth/login  →  { accessToken } + HTTP-Only Cookie (refreshToken)
                               │
                               ▼
               Authorization: Bearer <accessToken>
                               │
                               ▼ (on 401)
-              POST /api/Auth/refresh-token  →  new { accessToken, refreshToken }
+              POST /api/Auth/refresh-token  →  new { accessToken } + new HTTP-Only Cookie
 ```
 
 **Testing in Scalar UI:**
 1. Navigate to the [Interactive Docs](http://my-ecommerce.runasp.net/scalar/)
-2. Execute `/api/Auth/login` with test credentials
-3. Copy the `accessToken` and paste it in the "Authorize" dialog
+2. Execute `/api/Auth/login` with test credentials. The refresh token will automatically be saved as an HTTP-only cookie by your browser.
+3. Copy the `accessToken` from the response and paste it in the "Authorize" dialog
 4. Test any protected endpoint directly from the browser
+5. When the access token expires, call `/api/Auth/refresh-token` (the browser will automatically send the refresh token cookie) to get a new access token.
 
 <br/>
 

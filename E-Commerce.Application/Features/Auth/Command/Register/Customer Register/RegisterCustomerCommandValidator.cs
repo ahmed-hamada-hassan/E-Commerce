@@ -8,16 +8,17 @@ internal sealed class RegisterCustomerCommandValidator : AbstractValidator<Regis
     {
         RuleFor(u => u.FirstName)
             .NotEmpty().WithMessage("First name is required.")
-            .MinimumLength(3).WithMessage("First name must be at least 3 characters.")
+            .MinimumLength(2).WithMessage("First name must be at least 2 characters.")
             .MaximumLength(30).WithMessage("First name must not exceed 30 characters.");
 
         RuleFor(u => u.MiddleName)
-            .MinimumLength(3).WithMessage("Middle name must be at least 3 characters.")
-            .MaximumLength(30).WithMessage("Middle name must not exceed 30 characters.");
+            .MinimumLength(1).WithMessage("Middle name must be at least 1 character.")
+            .MaximumLength(30).WithMessage("Middle name must not exceed 30 characters.")
+            .When(u => !string.IsNullOrEmpty(u.MiddleName));
 
         RuleFor(u => u.LastName)
             .NotEmpty().WithMessage("Last name is required.")
-            .MinimumLength(3).WithMessage("Last name must be at least 3 characters.")
+            .MinimumLength(2).WithMessage("Last name must be at least 2 characters.")
             .MaximumLength(30).WithMessage("Last name must not exceed 30 characters.");
 
         RuleFor(u => u.Email)
@@ -27,7 +28,8 @@ internal sealed class RegisterCustomerCommandValidator : AbstractValidator<Regis
         RuleFor(U => U.UserName)
             .NotEmpty().WithMessage("Username is required.")
             .MinimumLength(3).WithMessage("Username must be at least 3 characters.")
-            .MaximumLength(50).WithMessage("Username must not exceed 50 characters.");
+            .MaximumLength(50).WithMessage("Username must not exceed 50 characters.")
+            .Matches("^[a-zA-Z0-9_]+$").WithMessage("Username can only contain letters, numbers, and underscores.");
 
         RuleFor(U => U.PhoneNumber)
             .NotEmpty().WithMessage("Phone number is required.")
@@ -65,7 +67,6 @@ internal sealed class RegisterCustomerCommandValidator : AbstractValidator<Regis
         RuleFor(U => U.DateOfBirth)
             .NotEmpty().WithMessage("Date of birth is required.")
             .LessThan(DateOnly.FromDateTime(DateTime.UtcNow)).WithMessage("Date of birth must be in the past.")
-            // Optional Business Rule: Must be 18 or older
             .Must(BeAtLeast18).WithMessage("User must be at least 18 years old.");
     }
 

@@ -4,7 +4,4 @@ using MediatR;
 
 namespace E_Commerce.Application.Features.Auth.Command.RefreshToken;
 
-public record RefreshTokenCommand(
-    string AccessToken,
-    string RefreshToken
-) : IRequest<Result<AuthResponse>>;
+public record RefreshTokenCommand(string RefreshToken) : IRequest<Result<AuthResponse>>;

@@ -6,6 +6,7 @@ using E_Commerce.Domain.Errors;
 using E_Commerce.Domain.Shared;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Security.Claims;
@@ -30,22 +31,17 @@ internal sealed class RefreshTokenCommandHandler : IRequestHandler<RefreshTokenC
 
     public async Task<Result<AuthResponse>> Handle(RefreshTokenCommand request, CancellationToken cancellationToken)
     {
-        var principal = _tokenService.GetPrincipalFromExpiredToken(request.AccessToken);
-
-        var userId = principal.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
-        if (userId is null) return Result<AuthResponse>.Failure(ApplicationUserErrors.InvalidToken);
-
-        var user = await _userManager.FindByIdAsync(userId);
-        if (user is null || user.RefreshToken != request.RefreshToken || user.RefreshTokenExpiryTime <= DateTimeOffset.UtcNow)
+        var user = await _userManager.Users.FirstOrDefaultAsync(u => u.RefreshToken == request.RefreshToken, cancellationToken);
+        if (user is null || user.RefreshTokenExpiryTime <= DateTimeOffset.UtcNow)
         {
-            _logger.LogWarning("SECURITY ALERT: Invalid or expired Refresh Token attempt for UserID: {UserId}. Token tampering or theft possible.", userId);
+            _logger.LogWarning("SECURITY ALERT: Invalid or expired Refresh Token attempt. Token tampering or theft possible.");
             return Result<AuthResponse>.Failure(ApplicationUserErrors.InvalidRefreshToken);
         }
 
         var newAccessToken = await _tokenService.GenerateAccessToken(user, cancellationToken);
         var newRefreshToken = _tokenService.GenerateRefreshToken();
 
-        var expiryTime = DateTimeOffset.UtcNow.AddDays(_jwtSettings.AccessRefreshTokenExpirationInDays);
+        var expiryTime = DateTimeOffset.UtcNow.AddDays(_jwtSettings.RefreshTokenExpirationInDays);
         user.UpdateRefreshToken(newRefreshToken, expiryTime);
 
         await _userManager.UpdateAsync(user);
